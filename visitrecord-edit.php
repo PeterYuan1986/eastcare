@@ -54,25 +54,28 @@ if (isset($_POST["save"])) {
     $idisease=@$_POST['idisease'];
     $iprocedure=@$_POST['iprocedure'];
     $imedicine=@$_POST['imedicine'];
-    $inote=@$_POST['inote'];
+    $ivisitbill=@$_POST['ivisitbill'];
 
     updatestr();
-    $sqlpatientvisitdoctor = "INSERT INTO `patientvisitdoctor`(patient_id,doctor_id) VALUES('" . $ipatient_id . "','" . $idoctor_id . "')";
+    $sqlpatientvisitdoctor = "INSERT INTO `patientvisitdoctor`(visitrecord_id,patient_id,doctor_id) VALUES('".$nextid."','" . $ipatient . "','" . $idoctor . "')";
     $resultpatientvisitdoctor = mysqli_query($conn, $sqlpatientvisitdoctor);
-    $sqlvisitrecord = "INSERT INTO `visitrecord`(visitrecord_id,visit_date) VALUES('" . $idate . "','" . $idate . "')";
+    // $ivisitrecord_id=mysql_insert_id(mysqli);
+    $sqlvisitrecord = "INSERT INTO `visitrecord`(visitrecord_id,visit_date,visit_bill) VALUES('" . $nextid . "','" . $idate . "','" . $ivisitbill . "')";
     $resultvisitrecord = mysqli_query($conn, $sqlvisitrecord);
-    $sqldiagnosis = "INSERT INTO `diagnosis`(visitrecord_id,disease_id,medicine_id,procedure_id) VALUES('" . $ivisitrecord_id . "','" . $idisease_id . "','" . $imedicine_id . "','" . $iprocedure_id . "')";
-    $resultvisitrecord = mysqli_query($conn, $sqlvisitrecord);
-    var_dump($_POST);
+    $sqldiagnosis = "INSERT INTO `diagnosis`(visitrecord_id,disease_id,medicine_id,procedure_id) VALUES('" . $nextid . "','" . $idisease . "','" . $imedicine . "','" . $iprocedure . "')";
+    $resultdiagnosis = mysqli_query($conn, $sqldiagnosis);
+    // var_dump($_POST)."<br/>";
+    // var_dump($sqlpatientvisitdoctor);
+    // echo "<br>";
+    // var_dump($resultpatientvisitdoctor);
     echo "<br>";
-    var_dump($sql);
+    // var_dump($sqlvisitrecord);
     echo "<br>";
-    var_dump($result);
+    // var_dump($resultvisitrecord);
     echo "<br>";
-    var_dump($sqlvisitrecord);
-    echo "<br>";
-    var_dump($resultvisitrecord);
-    echo "<br>";
+    var_dump($sqldiagnosis);
+    echo "<br/>";
+    var_dump($resultdiagnosis);
     if ($result) {
         print '<script>alert("Add Successful!")</script>';
         print '<script> location.replace("visitrecord-list.php"); </script>';
@@ -88,20 +91,24 @@ if (isset($_POST["update"])) {
     $idisease=@$_POST['idisease'];
     $iprocedure=@$_POST['iprocedure'];
     $imedicine=@$_POST['imedicine'];
-    $inote=@$_POST['inote'];
+    $ivisitbill=@$_POST['ivisitbill'];
 
     updatestr();
-    $sql = "UPDATE `patientvisitdoctor` SET `patient_id`='" . $ipatient_id . "', `doctor_id`='" . $idoctor_id . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
+    $sql = "UPDATE `patientvisitdoctor` SET `patient_id`='" . $ipatient . "', `doctor_id`='" . $idoctor . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
     $result = mysqli_query($conn, $sql);
+
+
+
+
     var_dump($sql)."<br/>";
     var_dump($result);   
-    if ($result) {
-        print '<script>alert("Edit Successful!")</script>';
-        unset($_SESSION['updatevisitrecordid']);
-        print '<script> location.replace("visitrecord-list.php"); </script>';
-    } else {
-        print '<script>alert("Edit Failed! Please check and try again!")</script>';
-    }
+    // if ($result) {
+    //     print '<script>alert("Edit Successful!")</script>';
+    //     unset($_SESSION['updatevisitrecordid']);
+    //     print '<script> location.replace("visitrecord-list.php"); </script>';
+    // } else {
+    //     print '<script>alert("Edit Failed! Please check and try again!")</script>';
+    // }
 }
 
 if (isset($_POST["delete"])) {
@@ -120,13 +127,14 @@ if (isset($_POST["delete"])) {
 
 function updatestr() {
     @$isku = strexchange($isku);
-    @$ibatch = strexchange($ibatch);
-    @$ireceiver = strexchange($ireceiver);
-    @$iaddress = strexchange($iaddress);
-    @$iaddress2 = strexchange($iaddress2);
-    @$icity = strexchange($icity);
-    @$iphone = strexchange($iphone);
-    @$inote = strexchange($inote);
+
+    @$idate = strexchange($idate);
+    @$ipatient = strexchange($ipatient);
+    @$idoctor = strexchange($idoctor);
+    @$idisease = strexchange($idisease);
+    @$iprocedure = strexchange($iprocedure);
+    @$imedicine = strexchange($imedicine);
+    @$ivisitbill = strexchange($ivisitbill);
 }
 
 $datanote = check_note($cmpid);
@@ -135,66 +143,61 @@ $totalnotes = sizeof($datanote);
 
 
 if (isset($_SESSION['editsku'])) {
-    $doctor_id = $_SESSION['editsku'];
-    $_SESSION['updatevisitrecordid'] = $doctor_id;
-    $sql = "SELECT * FROM `doctor` WHERE doctor_id ='" . $doctor_id . "'";
+    $visitrecord_id = $_SESSION['editsku'];
+    $_SESSION['updatevisitrecordid'] = $visitrecord_id;
+    $sql = "select visitrecord.visitrecord_id,visit_date,visit_bill,patient.patient_id,doctor.doctor_id, disease_id,procedure_id,medicine_id
+            from visitrecord, patientvisitdoctor, diagnosis, doctor, patient
+            where   visitrecord.visitrecord_id= patientvisitdoctor.visitrecord_id and
+            visitrecord.visitrecord_id = diagnosis.visitrecord_id and
+            patientvisitdoctor.doctor_id=doctor.doctor_id and 
+            patientvisitdoctor.patient_id = patient.patient_id and 
+            visitrecord.visitrecord_id ='" . $visitrecord_id . "'";
     $result = mysqli_query($conn, $sql);
+    var_dump($sql);
+    echo "<br/>";
+    var_dump($result);
     $row = mysqli_fetch_array($result);
-    $birthday = $row['birthday'];
-    $gender = $row['gender'];
-    $name = $row['name'];
-    $address = $row['address'];
-    $address2 = $row['address2'];
-    $city = $row['city'];
-    $state = $row['state'];
-    $zipcode = $row['zipcode'];
-    $phone = $row['phone'];
-    $profession = $row['profession'];
+    $visitrecord_id = $row['visitrecord_id'];
+    $visit_date = $row['visit_date'];
+    $visit_bill = $row['visit_bill'];
+    $patient_id = $row['patient_id'];
+    $doctor_id = $row['doctor_id'];
+    $disease_id = $row['disease_id'];
+    $procedure_id = $row['procedure_id'];
+    $medicine_id = $row['medicine_id'];
+
+
+
     unset($_SESSION['editsku']);
 } else {
     if (isset($_REQUEST['search'])) {
-        $sql = "SELECT *  FROM `doctor` WHERE doctor_id ='" . $_POST['searcheditorder'] . "'";
+        $sql = "SELECT *  FROM `visitrecord` WHERE visitrecord_id ='" . $_POST['searcheditorder'] . "'";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_array($result);
         if ($row > 0) {
-            $doctor_id = $_POST['searcheditorder'];
-            $_SESSION['updatevisitrecordid'] = $doctor_id;
-            $birthday = $row['birthday'];
-            $gender = $row['gender'];
-            $phone = $row['phone'];
-            $state = $row['state'];
-            $address = $row['address'];
-            $address2 = $row['address2'];
-            $city = $row['city'];
-            $zipcode = $row['zipcode'];
-            $profession = $row['profession'];
-            $name = $row['name'];
+        $visitrecord_id = $row['visitrecord_id'];
+        $visit_date = $row['visit_date'];
+        $visit_bill = $row['visit_bill'];        
         } else {
-            $doctor_id = $nextid;
-            $birthday = 0;
-            $gender = 0;
-            $name = 0;
-            $phone = 0;
-            $state = 0;
-            $address = 0;
-            $address2 = 0;
-            $city = 0;
-            $zipcode = 0;
-            $profession = 0;
+            $visitrecord_id = $nextid;
+            $visit_date = 0;
+            $patient_id = 0;
+            $doctor_id = 0;
+            $disease_id = 0;
+            $procedure_id = 0;
+            $medicine_id = 0;
+            $visit_bill = 0;
             print '<script>alert("This doctor doesn not exist!")</script>';
         }
     } else {
-        $doctor_id = $nextid;
-        $birthday = 0;
-        $gender = 0;
-        $name = 0;
-        $phone = 0;
-        $state = 0;
-        $address = 0;
-        $address2 = 0;
-        $city = 0;
-        $zipcode = 0;
-        $profession = 0;
+            $visitrecord_id = $nextid;
+            $visit_date = 0;
+            $patient_id = 0;
+            $doctor_id = 0;
+            $disease_id = 0;
+            $procedure_id = 0;
+            $medicine_id = 0;
+            $visit_bill = 0;
     }
 }
 
@@ -280,18 +283,32 @@ if (isset($_SESSION['orderidserchtext'])) {
                                                 <div class="input-group mg-b-pro-edt">
 
                                                     <span class="input-group-addon">Visit Record ID: <?php
-print $doctor_id;
-?></span>
-                                                                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Visit Date </span>
-                                                    <input name="idate" type="date" class="form-control pro-edt-select form-control-primary" <?php
-                                                            print date("Y-m-d");?>>
+                                                        if($visitrecord_id){
+                                                        print $visitrecord_id;}
+                                                        ?></span>
+                                                </div>
+
                                                 <div class="input-group mg-b-pro-edt">
                                                     <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Visit Date </span>
+                                                    <input name="idate" type="date" class="form-control pro-edt-select form-control-primary" <?php
+                                                        if($visit_date){
+                                                            print "value='".$visit_date."'";
+                                                        }
+                                                       
+                                                       ?>>
+                                                        
+                                                </div>
+
+                                                    <div class="input-group mg-b-pro-edt">
+                                                    <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
                                                     <span class="input-group-addon">Patient</span>
+                                                    
                                                     <select name="ipatient" class="form-control pro-edt-select form-control-primary">
                                                         <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
                                                         for ($index = 0; $index < @count($datapatient); $index++) {
                                                             print "<option value='" . $datapatient[$index]['patient_id'] . "'";
                                                             if ($patient_id == $datapatient[$index]['patient_id']) {
@@ -305,13 +322,19 @@ print $doctor_id;
 
                                                 </div>
 
-                                                <div class="input-group mg-b-pro-edt">
+                                                </div>
+
+                                                    <div class="input-group mg-b-pro-edt">
                                                     <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
                                                     <span class="input-group-addon">Doctor</span>
+                                                    
                                                     <select name="idoctor" class="form-control pro-edt-select form-control-primary">
                                                         <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
                                                         for ($index = 0; $index < @count($datadoctor); $index++) {
-                                                            print "<option value='" . $datadoctor[$index]['docotor_id'] . "'";
+                                                            print "<option value='" . $datadoctor[$index]['doctor_id'] . "'";
                                                             if ($doctor_id == $datadoctor[$index]['doctor_id']) {
                                                                 print " selected";
                                                             }
@@ -327,14 +350,17 @@ print $doctor_id;
                                                     <span class="input-group-addon">Disease </span>
                                                     <select name="idisease" class="form-control pro-edt-select form-control-primary">
                                                         <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
                                                         for ($index = 0; $index < @count($data); $index++) {
                                                             print "<option value='" . $data[$index]['disease_id'] . "'";
-                                                            if ($profession == $data[$index]['disease_id']) {
+                                                            if ($disease_id == $data[$index]['disease_id']) {
                                                                 print " selected";
                                                             }
                                                             print ">" . $data[$index]['disease_info'] . "</option>";
                                                         }
-                                                        ?>                                                                   
+                                                        ?>>                                                                   
 
                                                     </select>                                                    
 
@@ -344,9 +370,12 @@ print $doctor_id;
                                                     <span class="input-group-addon">Procedure</span>
                                                     <select name="iprocedure" class="form-control pro-edt-select form-control-primary">
                                                         <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
                                                         for ($index = 0; $index < @count($dataprocedure); $index++) {
                                                             print "<option value='" . $dataprocedure[$index]['procedure_id'] . "'";
-                                                            if ($procedure_id == $data[$index]['procedure_id']) {
+                                                            if ($procedure_id == $dataprocedure[$index]['procedure_id']) {
                                                                 print " selected";
                                                             }
                                                             print ">" . $dataprocedure[$index]['procedure_name'] . "</option>";
@@ -361,12 +390,15 @@ print $doctor_id;
                                                     <span class="input-group-addon">Medicine</span>
                                                     <select name="imedicine" class="form-control pro-edt-select form-control-primary">
                                                         <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
                                                         for ($index = 0; $index < @count($data); $index++) {
-                                                            print "<option value='" . $data[$index]['procedure_id'] . "'";
-                                                            if ($procedure_id == $dataprocedure[$index]['procedure_id']) {
+                                                            print "<option value='" . $datamedicine[$index]['medicine_id'] . "'";
+                                                            if ($medicine_id == $datamedicine[$index]['medicine_id']) {
                                                                 print " selected";
                                                             }
-                                                            print ">" . $data[$index]['procedure_info'] . "</option>";
+                                                            print ">" . $datamedicine[$index]['medicine_info'] . "</option>";
                                                         }
                                                         ?>                                                                   
 
@@ -375,10 +407,10 @@ print $doctor_id;
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
                                                     <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Info</span>
-                                                    <input name="inote" type="text"  class="form-control" placeholder="Please enter here" <?php
-                                                    if ($inote) {
-                                                        print "value='" . $inote . "'";
+                                                    <span class="input-group-addon">Visit Bill</span>
+                                                    <input name="ivisitbill" type="text"  class="form-control" placeholder="Please enter here" <?php
+                                                    if ($visit_bill) {
+                                                        print "value='" . $visit_bill . "'";
                                                     }
                                                     ?>>
                                                 </div>
