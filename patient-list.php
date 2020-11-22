@@ -40,6 +40,9 @@ if ($totalrow != 0) {
         $data[] = $arr;
     }
 }
+
+
+
 //    if (empty(@$_GET['page']) || !is_numeric(@$_GET['page']) || @$_GET['page'] < 1 || @$_GET['page'] > $totalpage) {
 //       $page = 1;
 //    } else
@@ -81,215 +84,245 @@ for ($i = 0; $i < @count(@$data); $i++) {
     }
 }
 
-require_once 'sidebar.php';?>
+require_once 'sidebar.php';
+?>
 
 <div class="breadcome-area">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <div class="breadcome-list">
-                                    <div class="row">
-                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                                            <div class="breadcomb-wp">
-                                                <div class="breadcomb-icon">
-                                                    <i class="icon nalika-edit"></i>
-                                                </div>
-                                                <div class="breadcomb-ctn">
-                                                    <h2>Patient List</h2>
-                                                    <p>Welcome to East Care Administration System <span class="bread-ntd"></span></p>
-                                                </div>
-                                            </div>
-                                        </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="breadcome-list">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                            <div class="breadcomb-wp">
+                                <div class="breadcomb-icon">
+                                    <i class="icon nalika-edit"></i>
+                                </div>
+                                <div class="breadcomb-ctn">
+                                    <h2>Patient List</h2>
+                                    <p>Welcome to East Care Administration System <span class="bread-ntd"></span></p>
+                                </div>
+                            </div>
+                        </div>
 
-                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="product-status mg-b-30">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="product-status-wrap">
+                    <h4>Patient List </h4>
+                    <div class="add-product" >                                    
+
+                        <a  href="patient-edit.php">Add Patient</a>
+                    </div>
+                    <div>
+                        <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
+                            <div class="header-top-menu tabl-d-n">
+                                <div class="breadcome-heading">
+                                    <form method="post" role="search" class="">
+
+
+                                        <div style="width:200px;float:left;"><input name="searchtext" type="text" placeholder="Search Patient Name....." value="<?php
+                                            if (isset($_SESSION['product-list_searchtext'])) {
+                                                print $_SESSION['product-list_searchtext'];
+                                            }
+                                            ?>" ></div>
+                                        <div style="color:#fff;width:000px;float:left;">
+                                            <button name="search" type="submit" value="search" class="pd-setting-ed"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-            <div class="product-status mg-b-30">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                            <div class="product-status-wrap">
-                                <h4>Patient List </h4>
-                                <div class="add-product" >                                    
-
-                                    <a  href="patient-edit.php">Add Patient</a>
-                                </div>
-                                <div>
-                                    <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
-                                        <div class="header-top-menu tabl-d-n">
-                                            <div class="breadcome-heading">
-                                                <form method="post" role="search" class="">
+                    <form action="" method="post" name="form">
 
 
-                                                    <div style="width:200px;float:left;"><input name="searchtext" type="text" placeholder="Search Patient Name....." value="<?php
-                                                        if (isset($_SESSION['product-list_searchtext'])) {
-                                                            print $_SESSION['product-list_searchtext'];
-                                                        }
-                                                        ?>" ></div>
-                                                    <div style="color:#fff;width:000px;float:left;">
-                                                        <button name="search" type="submit" value="search" class="pd-setting-ed"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+                        <table >
 
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <form action="" method="post" name="form">
+                            <tr>
+                                <th><a style="color: #fff" href="patient-list.php?column=patient_id&order=<?php echo $asc_or_desc; ?>">Patient ID <i class=" fa fa-sort<?php echo $column == 'patient_id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="patient-list.php?column=name&order=<?php echo $asc_or_desc; ?>">Name <i class=" fa fa-sort<?php echo $column == 'name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="patient-list.php?column=birthday&order=<?php echo $asc_or_desc; ?>">Date of Birth <i class="fa fa-sort<?php echo $column == 'birthday' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="patient-list.php?column=gender&order=<?php echo $asc_or_desc; ?>">Gender <i class="fa fa-sort<?php echo $column == 'gender' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="patient-list.php?column=insurance_info&order=<?php echo $asc_or_desc; ?>">Insurance Info <i class="fa fa-sort<?php echo $column == 'insurance_info' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="patient-list.php?column=in_hospital&order=<?php echo $asc_or_desc; ?>">In Hospital </a></th> 
+                                <th><a style="color: #fff" href="patient-list.php?column=in_hospital&order=<?php echo $asc_or_desc; ?>">Admission Date</a></th> 
+                                <th><a style="color: #fff" href="patient-list.php?column=in_hospital&order=<?php echo $asc_or_desc; ?>">Room Number </a></th> 
 
-
-                                    <table >
-
-                                        <tr>
-                                        <th><a style="color: #fff" href="patient-list.php?column=patient_id&order=<?php echo $asc_or_desc; ?>">Patient ID <i class=" fa fa-sort<?php echo $column == 'patient_id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                        <th><a style="color: #fff" href="patient-list.php?column=name&order=<?php echo $asc_or_desc; ?>">Name <i class=" fa fa-sort<?php echo $column == 'name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                        <th><a style="color: #fff" href="patient-list.php?column=birthday&order=<?php echo $asc_or_desc; ?>">Date of Birth <i class="fa fa-sort<?php echo $column == 'birthday' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                        <th><a style="color: #fff" href="patient-list.php?column=gender&order=<?php echo $asc_or_desc; ?>">Gender <i class="fa fa-sort<?php echo $column == 'gender' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                        <th><a style="color: #fff" href="patient-list.php?column=insurance_info&order=<?php echo $asc_or_desc; ?>">Insurance Info <i class="fa fa-sort<?php echo $column == 'insurance_info' ? '-' . $up_or_down : ''; ?>"></i></a></th>
- <!--                                        <th><a style="color: #fff" href="patient-list.php?column=in_hospital&order=<?php echo $asc_or_desc; ?>">In Hospital <i class="fa fa-sort<?php echo $column == 'in_hospital' ? '-' . $up_or_down : ''; ?>"></i></a></th> -->
-                                        <th>Setting</th>
+                                <th>Setting</th>
 
 
 
-                                        </tr>
+                            </tr>
 
 
 
-                                        <?php
+                            <?php
 // if ($totalrow != 0) {
 //    for ($i = 0; $i < $perpage; $i++) {
 //       $index = ($page - 1) * $perpage + $i;
 //      if ($index >= count($data))
 //           break;
 //      else {', '', '', '', '', ''
-                                     for ($index = 0; $index < @count($data); $index++) {
-                                            print '<tr>';
-                                            print "<td>{$data[$index]['patient_id']}</td>";
-                                            print "<td>{$data[$index]['name']}</td>";
-                                            print "<td>{$data[$index]['birthday']}</td>";
-                                            print "<td>{$data[$index]['gender']}</td>";
-                                            print "<td>{$data[$index]['insurance_info']}</td>";
-                                            // print "<td>{$data[$index]['in_hospital']}</td>";
-                                            $edit = "edit" . $index;
-                                            $trash = "trash" . $index;
-                                            ?>
+                            for ($index = 0; $index < @count($data); $index++) {
+                                print '<tr>';
+                                print "<td>{$data[$index]['patient_id']}</td>";
+                                print "<td>{$data[$index]['name']}</td>";
+                                print "<td>{$data[$index]['birthday']}</td>";
+                                print "<td>{$data[$index]['gender']}</td>";
+                                print "<td>{$data[$index]['insurance_info']}</td>";
+                                // print "<td>{$data[$index]['in_hospital']}</td>";
 
-                                            <td>
-                                            <button data-toggle="tooltip" name ="<?php print $edit; ?>"    type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                                            <button data-toggle="tooltip" name ="<?php print $trash; ?>"     type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
 
-                                            </td >  
-                                            </tr>
-                                            <?php
-                                        }
-                                        ?>
-                                    </table><!--
-            <div class="custom-pagination "  >
-                <ul class="pagination ">
-
-                                    <?php
-                                    for ($i = 1; $i <= $totalpage; $i++) {
-                                        if ($i == $page) {
-                                            printf("<li ><a >%d</a></li>", $i);
-                                        } else {
-                                            printf("<li class='page-item'><a class='page-link' href='%s?page=%d'>%d</a></li>", $_SERVER["PHP_SELF"], $i, $i);
-                                        }
+                                $sql = "select * from hospitalizationrecord where patient_id ='" . $data[$index]['patient_id'] . "' order by hospitalization_id DESC";
+                                $result = mysqli_query($conn, $sql);
+                                $totalrows = mysqli_num_rows($result);
+                                if ($totalrows > 0) {
+                                    $row = mysqli_fetch_array($result);
+                                    
+                                    if (@$row['discharge_date'] != NULL) {
+                                        $row['detailinhospital'] = 'NO';
+                                        $row['detailroom_number'] = NULL;
+                                    } else {
+                                        $row['detailinhospital'] = 'YES';
+                                        $row['detailroom_number'] = $row['room_number'];
                                     }
-                                    ?>
+                                } else {
+                                    $row['detailadmission_date'] = NULL;
+                                    $row['detailroom_number'] = NULL;
+                                    $row['detaildischarge_date'] = NULL;
+                                    $row['detailinhospital'] = 'NO';
+                                }
+                                print "<td>{$row['detailinhospital']}</td>";
+                                print "<td>{$row['admission_date']}</td>";
+                                print "<td>{$row['detailroom_number']}</td>";
 
 
-                </ul>
-            </div>-->
+                                $edit = "edit" . $index;
+                                $trash = "trash" . $index;
+                                ?>
 
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                                <td>
+                                    <button data-toggle="tooltip" name ="<?php print $edit; ?>"    type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button data-toggle="tooltip" name ="<?php print $trash; ?>"     type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+
+                                </td >  
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                        </table><!--
+<div class="custom-pagination "  >
+    <ul class="pagination ">
+
+                        <?php
+                        for ($i = 1; $i <= $totalpage; $i++) {
+                            if ($i == $page) {
+                                printf("<li ><a >%d</a></li>", $i);
+                            } else {
+                                printf("<li class='page-item'><a class='page-link' href='%s?page=%d'>%d</a></li>", $_SERVER["PHP_SELF"], $i, $i);
+                            }
+                        }
+                        ?>
+
+
+    </ul>
+</div>-->
+
+                    </form>
                 </div>
             </div>
-            <div class="footer-copyright-area">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="footer-copy-right">
-                                <p>Copyright © 2019 EastCare. All rights reserved.</p>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+    </div>
+</div>
+<div class="footer-copyright-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="footer-copy-right">
+                    <p>Copyright © 2019 EastCare. All rights reserved.</p>
                 </div>
             </div>
-        <!-- jquery
-                    ============================================ -->
-        <script src="js/vendor/jquery-1.12.4.min.js"></script>
-        <!-- bootstrap JS
-                    ============================================ -->
-        <script src="js/bootstrap.min.js"></script>
-        <!-- wow JS
-                    ============================================ -->
-        <script src="js/wow.min.js"></script>
-        <!-- price-slider JS
-                    ============================================ -->
-        <script src="js/jquery-price-slider.js"></script>
-        <!-- meanmenu JS
-                    ============================================ -->
-        <script src="js/jquery.meanmenu.js"></script>
-        <!-- owl.carousel JS
-                    ============================================ -->
-        <script src="js/owl.carousel.min.js"></script>
-        <!-- sticky JS
-                    ============================================ -->
-        <script src="js/jquery.sticky.js"></script>
-        <!-- scrollUp JS
-                    ============================================ -->
-        <script src="js/jquery.scrollUp.min.js"></script>
-        <!-- mCustomScrollbar JS
-                    ============================================ -->
-        <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-        <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
-        <!-- metisMenu JS
-                    ============================================ -->
-        <script src="js/metisMenu/metisMenu.min.js"></script>
-        <script src="js/metisMenu/metisMenu-active.js"></script>
-        <!-- sparkline JS
-                    ============================================ -->
-        <script src="js/sparkline/jquery.sparkline.min.js"></script>
-        <script src="js/sparkline/jquery.charts-sparkline.js"></script>
-        <!-- calendar JS
-                    ============================================ -->
-        <script src="js/calendar/moment.min.js"></script>
-        <script src="js/calendar/fullcalendar.min.js"></script>
-        <script src="js/calendar/fullcalendar-active.js"></script>
-        <!-- float JS
-                ============================================ -->
-        <script src="js/flot/jquery.flot.js"></script>
-        <script src="js/flot/jquery.flot.resize.js"></script>
-        <script src="js/flot/curvedLines.js"></script>
-        <script src="js/flot/flot-active.js"></script>
-        <!-- plugins JS
-                    ============================================ -->
-        <script src="js/plugins.js"></script>
-        <!-- main JS
-                    ============================================ -->
-        <script src="js/main.js"></script>
+        </div>
+    </div>
+</div>
+<!-- jquery
+            ============================================ -->
+<script src="js/vendor/jquery-1.12.4.min.js"></script>
+<!-- bootstrap JS
+            ============================================ -->
+<script src="js/bootstrap.min.js"></script>
+<!-- wow JS
+            ============================================ -->
+<script src="js/wow.min.js"></script>
+<!-- price-slider JS
+            ============================================ -->
+<script src="js/jquery-price-slider.js"></script>
+<!-- meanmenu JS
+            ============================================ -->
+<script src="js/jquery.meanmenu.js"></script>
+<!-- owl.carousel JS
+            ============================================ -->
+<script src="js/owl.carousel.min.js"></script>
+<!-- sticky JS
+            ============================================ -->
+<script src="js/jquery.sticky.js"></script>
+<!-- scrollUp JS
+            ============================================ -->
+<script src="js/jquery.scrollUp.min.js"></script>
+<!-- mCustomScrollbar JS
+            ============================================ -->
+<script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+<script src="js/scrollbar/mCustomScrollbar-active.js"></script>
+<!-- metisMenu JS
+            ============================================ -->
+<script src="js/metisMenu/metisMenu.min.js"></script>
+<script src="js/metisMenu/metisMenu-active.js"></script>
+<!-- sparkline JS
+            ============================================ -->
+<script src="js/sparkline/jquery.sparkline.min.js"></script>
+<script src="js/sparkline/jquery.charts-sparkline.js"></script>
+<!-- calendar JS
+            ============================================ -->
+<script src="js/calendar/moment.min.js"></script>
+<script src="js/calendar/fullcalendar.min.js"></script>
+<script src="js/calendar/fullcalendar-active.js"></script>
+<!-- float JS
+        ============================================ -->
+<script src="js/flot/jquery.flot.js"></script>
+<script src="js/flot/jquery.flot.resize.js"></script>
+<script src="js/flot/curvedLines.js"></script>
+<script src="js/flot/flot-active.js"></script>
+<!-- plugins JS
+            ============================================ -->
+<script src="js/plugins.js"></script>
+<!-- main JS
+            ============================================ -->
+<script src="js/main.js"></script>
 
 
-        <script type="text/javascript">
-                                                function openNewWin(url)
-                                                {
-                                                    window.open(url);
-                                                }
+<script type="text/javascript">
+                                    function openNewWin(url)
+                                    {
+                                        window.open(url);
+                                    }
 
-                                                function confirmation(url) {
+                                    function confirmation(url) {
 
-                                                    return confirm('Are you sure?');
-                                                }
+                                        return confirm('Are you sure?');
+                                    }
 
 
-        </script>
-    </body>
+</script>
+</body>
 
 </html>

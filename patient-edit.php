@@ -27,7 +27,7 @@ if (isset($_POST["save"])) {
     $istate = @$_POST["istate"];
     $izipcode = @$_POST["izipcode"];
     $iphone = @$_POST["iphone"];
-    $inote = @$_POST["insurance_info"];
+    $inote = @$_POST["inote"];
     updatestr();
 
     $sql = "INSERT INTO `patient`(`birthday` , `gender`, `name`,`address`,`address2`, `city`, `state`, `zipcode`, `phone`, insurance_info) VALUES('" . $ibirthday . "','" . $igender . "','" . $iname . "','" . $iaddress . "','" . $iaddress2 . "','" . $icity . "','" . $istate . "','" . $izipcode . "','" . $iphone . "','" . $inote . "')";
@@ -50,7 +50,7 @@ if (isset($_POST["update"])) {
     $istate = @$_POST["istate"];
     $izipcode = @$_POST["izipcode"];
     $iphone = @$_POST["iphone"];
-    $inote = @$_POST["insurance_info"];
+    $inote = @$_POST["inote"];
     updatestr();
     $sql = "UPDATE `patient` SET `insurance_info`='" . $inote . "', `birthday`='" . $ibirthday . "', `gender`='" . $igender . "', `name`='" . $iname . "',`address`='" . $iaddress . "', `city`='" . $icity . "', `state`='" . $istate . "',  `zipcode`='" . $izipcode . "', `phone`='" . $iphone . "',address2='" . $iaddress2 . "'WHERE patient_id='" . $_SESSION['updatepatientid'] . "'";
     $result = mysqli_query($conn, $sql);
@@ -353,9 +353,9 @@ if ($birthday) {
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="text-center custom-pro-edt-ds">
-                                                <input name="save" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Add New Doctor">
-                                                <input name="update" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Update Doctor Info">
-                                                <input name="delete" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Delete Doctor">
+                                                <input name="save" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Add New Patient">
+                                                <input name="update" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Update Patient Info">
+                                                <input name="delete" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Delete Patient">
                                             </div>
                                         </div>
                                     </div>

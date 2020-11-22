@@ -79,7 +79,7 @@ for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "edit" . $i;
     if (isset($_REQUEST["{$tem}"])) {
         $_REQUEST["{$tem}"] = 0;
-        $_SESSION['editsku'] = $data[$i]['type_id'];
+        $_SESSION['edittype'] = $data[$i]['type_id'];
         header('location:roomtype-edit.php');
         break;
     }

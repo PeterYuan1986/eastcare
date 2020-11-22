@@ -11,111 +11,90 @@ $userlevel = $_SESSION['user_info']['level'];           //userlevel  0: admin; e
 $cmpid = $_SESSION['user_info']['cmpid'];
 $childid = $_SESSION['user_info']['childid'];
 check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
-$sql = "SELECT MAX(`type_id`) FROM `typed`";
-$result = mysqli_query($conn, $sql);
-$nextid = mysqli_fetch_array($result)[0] + 1;
+$str1 = date("Y-m-d", time());
 
-$sql = "SELECT * FROM typed";
+
+
+
+if (isset($_SESSION['Admitid'])) {
+    $patient_id = $_SESSION['Admitid'];
+} else {
+    header('location:patient-detail.php');
+}
+$sql = "select * from hospitalizationrecord where patient_id ='" . $patient_id . "' order by hospitalization_id DESC";
+$result = mysqli_query($conn, $sql);
+$totalrow = mysqli_num_rows($result);
+if ($totalrow > 0) {
+    $row = mysqli_fetch_array($result);
+    if ($row['discharge_date'] == NULL) {
+        @$admission_date = $row['admission_date'];
+        @$room_number = $row['room_number'];
+        @$discharge_date = NULL;
+        $_SESSION['hospitalizationid'] = $row[0];
+    } else {
+        $admission_date = NULL;
+        $room_number = NULL;
+        $discharge_date = NULL;
+    }
+} else {
+    $admission_date = NULL;
+    $room_number = NULL;
+    $discharge_date = NULL;
+}
+$sql = "SELECT `room_number` FROM `roomtype` where engaged='N' ORDER BY room_number DESC";
 $result = mysqli_query($conn, $sql);
 while ($arr = mysqli_fetch_array($result)) {
-    $data[] = $arr;
+    $roomdata[] = $arr;
 }
 
 
-
-if (isset($_POST["save"])) {
-    $itypeid=@$_POST["itypeid"];
-    $itypeinfo = @$_POST["itypeinfo"];
-    $inote = @$_POST["inote"];
- 
-    updatestr();
-    $sql = "INSERT INTO `typed`(`type_id`, `type_info`, `type_price`) VALUES('" . $itypeid . "','" . $itypeinfo . "','" . $inote . "')";
+if (isset($_POST["admit"])) {
+    $admission_date = @$_POST['admission'];
+    $room_number = @$_POST["room"];
+    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "')";
     $result = mysqli_query($conn, $sql);
-
-    if ($result) {
-        print '<script>alert("Add Successful!")</script>';
-        print '<script> location.replace("roomtype-list.php"); </script>';
-    } else {
-        print '<script>alert("Add Failed! Please check and try again!")</script>';
-    }
-}
-
-if (isset($_POST["update"])) {
-    $itypeid=@$_POST["itypeid"];
-    $itypeinfo = @$_POST["itypeinfo"];
-    $inote = @$_POST["inote"];
-
-    updatestr();
-    $sql = "UPDATE `typed` SET `type_id`='" . $itypeid . "',`type_price`='" . $inote . "', `type_info`='" . $itypeinfo . "' WHERE type_id='" . $_SESSION['updatetypeid'] . "'";
+    $sql = "UPDATE `roomtype` SET `engaged`='Y' WHERE `room_number`='" . $room_number . "'";
     $result = mysqli_query($conn, $sql);
-
-    if ($result) {
-        print '<script>alert("Edit Successful!")</script>';
-        unset($_SESSION['updatetypeid']);
-        print '<script> location.replace("roomtype-list.php"); </script>';
-    } else {
-        print '<script>alert("Edit Failed! Please check and try again!")</script>';
-    }
+    print '<script>alert("Successful!")</script>';
+    print '<script> location.replace("patient-detail.php"); </script>';
 }
 
-if (isset($_POST["delete"])) {
-    if ($type_id != $nextid) {
-        $sql = "DELETE from typed  WHERE typed='" . $_SESSION['updatetypeid'] . "'";
+if (isset($_POST["disc"])) {
+    $discharge_date = $_POST['discharge'];
+    $sql = "UPDATE `hospitalizationrecord` SET `discharge_date`='" . $discharge_date . "'  where hospitalization_id= '" . $_SESSION['hospitalizationid'] . "'";
+    if ($discharge_date != NULL && $admission_date < $discharge_date) {
         $result = mysqli_query($conn, $sql);
-        unset($_SESSION['updatetypeid']);
-        print '<script>alert("Delete Successful!")</script>';
-        header('Location:' . $_SERVER["PHP_SELF"]);
+        $sql = "UPDATE `roomtype` SET `engaged`='N' WHERE `room_number`='" . $room_number . "'";
+        $result = mysqli_query($conn, $sql);
+        print '<script>alert("Add Successful!")</script>';
+        print '<script> location.replace("patient-detail.php"); </script>';
     } else {
-        print '<script>alert("Delete Unsuccessful!Please check the room number")</script>';
+        print '<script>alert("Failed!Discharge time must be later than admission time!")</script>';
     }
+}
+
+
+if (isset($_POST["cancel"])) {
+    header('location:patient-detail.php');
 }
 
 function updatestr() {
     @$isku = strexchange($isku);
-    @$inote = strexchange($inote);
+    @$ibatch = strexchange($ibatch);
+    @$ireceiver = strexchange($ireceiver);
+    @$iaddress = strexchange($iaddress);
+    @$iaddress2 = strexchange($iaddress2);
+    @$icity = strexchange($icity);
+    @$iphone = strexchange($iphone);
+    @$inote = strexchange($insurance_info);
 }
 
 $datanote = check_note($cmpid);
 $totalnotes = sizeof($datanote);
 
-
-
-if (isset($_SESSION['edittype'])) {
-    $type_id = $_SESSION['edittype'];
-    $_SESSION['updatetypeid'] = $type_id;
-    $sql = "SELECT * FROM `typed` WHERE type_id ='" . $type_id . "'";
-    $result = mysqli_query($conn, $sql);
-    $row = mysqli_fetch_array($result);    
-    $type_info = $row['type_info'];
-    $type_price = $row['type_price'];
-    unset($_SESSION['edittype']);
-
-} else {
-    if (isset($_REQUEST['search'])) {
-        $sql = "SELECT *  FROM `typed` WHERE type_id ='" . $_POST['searcheditorder'] . "'";
-        $result = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_array($result);
-        if ($row > 0) {
-            $type_id = $_POST['searcheditorder'];
-            $_SESSION['updatetypeid'] = $type_id;
-            $type_price = $row['type_price'];
-            $type_info = $row['type_info'];
-        } else {
-            $type_id = $nextid;
-            $type_info = 0;
-            $type_price = 0;
-            print '<script>alert("This room doesn not exist!")</script>';
-        }
-    } else {
-        $type_id = $nextid;
-        $type_price = 0;
-        $type_info = 0;
-    }
-}
-
 function checkinput($isku) {
     if (isEmpty($isku)) {
-        print '<script>alert("The name should not be empty!")</script>';
+        print '<script>alert("The user name should not be empty!")</script>';
         return FALSE;
     }
     return TRUE;
@@ -137,7 +116,7 @@ require_once 'sidebar.php';
                                     <i class="icon nalika-edit"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Room Type Edit</h2>
+                                    <h2>Admit/Discharge</h2>
                                     <p>Welcome to EastCare Admin System <span class="bread-ntd"></span></p>
                                 </div>
 
@@ -159,27 +138,7 @@ require_once 'sidebar.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div>
-                        <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
-                            <div class="header-top-menu tabl-d-n">
-                                <div class="breadcome-heading">
-                                    <form method="post" role="search" class="">
 
-
-                                        <div style="width:200px;float:left;"><input name="searcheditorder" type="text" placeholder="Search Room Type ID" value="<?php
-if (isset($_SESSION['orderidserchtext'])) {
-    print $_SESSION['orderidserchtext'];
-}
-?>" ></div>
-                                        <div style="color:#fff;width:000px;float:left;">
-                                            <button name="search" type="submit" value="search" class="pd-setting-ed"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
                     <div class="review-tab-pro-inner">
@@ -192,43 +151,52 @@ if (isset($_SESSION['orderidserchtext'])) {
                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                             <div class="review-content-section">
 
+                                                <div class="input-group mg-b-pro-edt">
+
+                                                    <span class="input-group-addon">Patient ID: <?php
+print $patient_id;
+?></span>
+
+                                                </div>
 
                                                 <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Room Type ID</span>
-                                                    <input name="itypeid" type="text" class="form-control pro-edt-select form-control-primary" <?php
-                                                        if ($type_id) {
-                                                            print "value='" . $type_id . "'";
+                                                    <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Admission Date</span>
+                                                    <input name="#" type="date" class="form-control pro-edt-select form-control-primary" <?php
+                                                        if ($admission_date) {
+                                                            print "value='" . $admission_date . "'";
                                                         }
-                                                        ?>>
+?>>
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Room Type Info</span>
-                                                    <input name="itypeinfo" type="text" class="form-control pro-edt-select form-control-primary" <?php
-                                                        if ($type_info) {
-                                                            print "value='" . $type_info . "'";
-                                                        }
-                                                        ?>>
+                                                    <span class="input-group-addon"><i class="icon nalika-info" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Room number</span>
+                                                    <input name="#" type="text" class="form-control pro-edt-select form-control-primary" <?php
+                                                    if ($room_number) {
+                                                        print "value='" . $room_number . "'";
+                                                    }
+?>>
+
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Price</span>
-                                                    <input name="inote" type="text" class="form-control pro-edt-select form-control-primary" <?php
-                                                        if ($type_price) {
-                                                            print "value='" . $type_price . "'";
-                                                        }
-                                                        ?>>
-                                                </div>                                        
+                                                    <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Release Date</span>
+                                                    <input name="discharge" type="date" class="form-control pro-edt-select form-control-primary" <?php
+                                                    if ($discharge_date) {
+                                                        print "value='" . $discharge_date . "'";
+                                                    }
+?>>
+                                                </div>
+
+
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="text-center custom-pro-edt-ds">
-                                                <input name="save" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Add New Room Type">
-                                                <input name="update" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Update Room Type Info">
-                                                <input name="delete" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Delete Room Type">
+                                                <input name="disc" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Discharge">\
+                                                <input name="cancel" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Cancel">
                                             </div>
                                         </div>
                                     </div>

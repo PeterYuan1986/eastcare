@@ -13,9 +13,15 @@ $childid = $_SESSION['user_info']['childid'];
 check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
 
 if (isset($_POST['Admit'])) {
-    $_SESSION['Admitid'] = $_SESSION['patient_id'];
-    unset($_SESSION['patient_id']);
-    header('Location:admit-release.php');
+    if ($_SESSION['detailinhospital']=='NO') {
+        $_SESSION['Admitid'] = $_SESSION['patient_id'];
+        unset($_SESSION['patient_id']);
+        header('Location:admit-release.php');
+    } else {
+        $_SESSION['Admitid'] = $_SESSION['patient_id'];
+        unset($_SESSION['patient_id']);
+        header('Location:discharge.php');
+    }
 }
 if (isset($_POST['Visit'])) {
     $_SESSION['Visitid'] = $_SESSION['patient_id'];
@@ -86,13 +92,12 @@ for ($i = 0; $i < $perpage; $i++) {
         @$_SESSION['detailpatientbirth'] = $row[2];
         @$_SESSION['detailpatientgender'] = $row[3];
         @$_SESSION['detailpatientinsuranceinfo'] = $row[4];
-        @$_SESSION['detailpatientinhospital'] = $row[5];
-        @$_SESSION['detailpatientaddress'] = $row[6];
-        @$_SESSION['detailpatientaddress2'] = $row[7];
-        @$_SESSION['detailpatientcity'] = $row[8];
-        @$_SESSION['detailpatientstate'] = $row[9];
-        @$_SESSION['detailpatientzipcode'] = $row[10];
-        @$_SESSION['detailpatientphone'] = $row[11];
+        @$_SESSION['detailpatientaddress'] = $row[5];
+        @$_SESSION['detailpatientaddress2'] = $row[6];
+        @$_SESSION['detailpatientcity'] = $row[7];
+        @$_SESSION['detailpatientstate'] = $row[8];
+        @$_SESSION['detailpatientzipcode'] = $row[9];
+        @$_SESSION['detailpatientphone'] = $row[10];
 
         $sql = "select * from hospitalizationrecord where patient_id ='" . $_SESSION['patient_id'] . "' order by hospitalization_id DESC";
         $result = mysqli_query($conn, $sql);

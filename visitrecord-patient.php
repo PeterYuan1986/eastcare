@@ -15,22 +15,29 @@ check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
 $datanote = check_note($cmpid);
 $totalnotes = sizeof($datanote);
 
-if (isset($_POST["back"])){
+if (isset($_POST["back"])) {
     header('location:patient-detail.php');
 }
 
-$columns = array('visitrecord_id', 'visit_date','patient_name','docotor_name','visit_bill','disease','procedure','medicine');
+
+$columns = array('visitrecord_id', 'visit_date', 'patient_name', 'docotor_name', 'visit_bill', 'disease', 'procedure', 'medicine');
 $column = isset($_GET['column']) && in_array($_GET['column'], $columns) ? $_GET['column'] : $columns[0];
 $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 //$perpage = 20;
 
-if (isset($_SESSION['Visitid'])){
-    $patient_id=$_SESSION['Visitid'];
-}else{
+if (isset($_SESSION['Visitid'])) {
+    $patient_id = $_SESSION['Visitid'];
+} else {
     header('location:patient-detail.php');
 }
+
+if (isset($_POST["bill"])) {
+    $_SESSION['Billid'] = $_SESSION['Visitid'];
+    unset($_SESSION['Visitid']);
+    header('location:bill.php');
+}
 // var_dump($patient_id);
-$sql = "select * from patientvisitdoctor where patient_id LIKE '%" . $_SESSION['Visitid'] . "%' ORDER BY " . $column . ' ' . $sort_order;
+$sql = "SELECT visitrecord_id, `visit_date`, `doctor_id`,`patient_id`,`disease_info`,`procedure_name`,`medicine_info`,`visit_bill` FROM visitrecord NATURAL JOIN medicine NATURAL JOIN procedur NATURAL JOIN disease where patient_id = '" . $patient_id . "' ORDER BY " . $column . ' ' . $sort_order;
 
 $result = mysqli_query($conn, $sql);
 // var_dump($sql);
@@ -46,21 +53,15 @@ if ($totalrow != 0) {
         $data[] = $arr;
     }
 }
-
 ?>
 
 <?php
-
 for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "trash" . $i;
     if (isset($_REQUEST["{$tem}"])) {
         $_REQUEST["{$tem}"] = 0;
         $sqldelvisitrecord = "DELETE FROM `visitrecord` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
         mysqli_query($conn, $sqldelvisitrecord);
-        $sqldelpatientvisitdoctor = "DELETE FROM `patientvisitdoctor` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
-        mysqli_query($conn, $sqldelpatientvisitdoctor);
-        $sqldeldiagnosis = "DELETE FROM `diagnosis` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
-        mysqli_query($conn, $sqldeldiagnosis);
         header('location: ' . $_SERVER['HTTP_REFERER']);
         break;
     }
@@ -78,7 +79,7 @@ for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "edit" . $i;
     if (isset($_REQUEST["{$tem}"])) {
         $_REQUEST["{$tem}"] = 0;
-        $_SESSION['editsku'] = $data[$i]['visitrecord_id'];
+        $_SESSION['editvisit'] = $data[$i]['visitrecord_id'];
         // var_dump($_SESSION['editsku']);
         header('location:visitrecord-edit.php');
         break;
@@ -121,7 +122,7 @@ require_once 'sidebar.php';
                     <h4>Visit Record List </h4>
                     <div class="add-product" >                                    
 
-                       <!--  <a  href="visitrecord-edit.php">Print Bill</a> -->
+                        <!--  <a  href="visitrecord-edit.php">Print Bill</a> -->
                     </div>
                     <div>
                         <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
@@ -131,10 +132,10 @@ require_once 'sidebar.php';
 
 
                                        <!--  <div style="width:200px;float:left;"><input name="searchtext" type="text" placeholder="Search visitrecord number....." value="<?php
-                                            if (isset($_SESSION['visitrecord-list_searchtext'])) {
-                                                print $_SESSION['visitrecord-list_searchtext'];
-                                            }
-                                            ?>" ></div> -->
+                                        if (isset($_SESSION['visitrecord-list_searchtext'])) {
+                                            print $_SESSION['visitrecord-list_searchtext'];
+                                        }
+                                        ?>" ></div> -->
                                         <div style="color:#fff;width:000px;float:left;">
                                            <!--  <button name="search" type="submit" value="search" class="pd-setting-ed"><i class="fa fa-search-plus" aria-hidden="true"></i></button> -->
 
@@ -157,9 +158,9 @@ require_once 'sidebar.php';
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=disease_name&order=<?php echo $asc_or_desc; ?>">Disease <i class=" fa fa-sort<?php echo $column == 'disease_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=procedure_name&order=<?php echo $asc_or_desc; ?>">Procedure <i class=" fa fa-sort<?php echo $column == 'procedure_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=medicine_info&order=<?php echo $asc_or_desc; ?>">Medicine <i class=" fa fa-sort<?php echo $column == 'medicine_info' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                
+
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=visit_bill&order=<?php echo $asc_or_desc; ?>">Visit Bill<i class=" fa fa-sort<?php echo $column == 'visit_bill' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-  
+
                                 <th>Setting</th>
                             </tr>
 
@@ -174,47 +175,14 @@ require_once 'sidebar.php';
 //      else {', '', '', '', '', ''
                             for ($index = 0; $index < @count($data); $index++) {
                                 print '<tr>';
-                                print "<td>{$data[$index]['visitrecord_id']}</td>";
-                                // print "<td>{$data[$index]['visit_date']}</td>";
-                                $sql="select visit_date from visitrecord NATURAL JOIN patientvisitdoctor WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result=mysqli_query($conn, $sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>"; 
-                                $sql="select  doctor.name from doctor NATURAL JOIN patientvisitdoctor NATURAL JOIN visitrecord WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";          
-
-                                $sql="select  patient.name from patient NATURAL JOIN patientvisitdoctor NATURAL JOIN visitrecord WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  disease.disease_info from disease NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  procedur.procedure_name from procedur NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  medicine.medicine_info from medicine NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                // print "<td>{$data[$index]['visit_bill']}</td>";
-                                $sql="select visit_bill from visitrecord NATURAL JOIN patientvisitdoctor WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result=mysqli_query($conn, $sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>"; 
+                                print "<td>{$data[$index][0]}</td>";
+                                print "<td>{$data[$index][1]}</td>";
+                                print "<td>{$data[$index][2]}</td>";
+                                print "<td>{$data[$index][3]}</td>";
+                                print "<td>{$data[$index][4]}</td>";
+                                print "<td>{$data[$index][5]}</td>";
+                                print "<td>{$data[$index][6]}</td>";
+                                print "<td>{$data[$index][7]}</td>";
                                 $edit = "edit" . $index;
                                 $trash = "trash" . $index;
                                 ?>
@@ -245,15 +213,15 @@ require_once 'sidebar.php';
 
     </ul>
 </div>-->
-                                    <div class="row">
-                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                            <div class="text-center custom-pro-edt-ds">
-                                                <input name="back" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Patient Detail">
-                                                <input name="bill" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Print Bill">
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="text-center custom-pro-edt-ds">
+                                    <input name="back" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Patient Detail">
+                                    <input name="bill" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Print Bill">
+
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -327,15 +295,15 @@ require_once 'sidebar.php';
 
 
 <script type="text/javascript">
-                                        function openNewWin(url)
-                                        {
-                                            window.open(url);
-                                        }
+                                    function openNewWin(url)
+                                    {
+                                        window.open(url);
+                                    }
 
-                                        // function confirmation(url) {
+                                    // function confirmation(url) {
 
-                                        //     return confirm('Are you sure?');
-                                        // }
+                                    //     return confirm('Are you sure?');
+                                    // }
 
 
 </script>

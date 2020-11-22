@@ -151,6 +151,7 @@ function checkinput($user, $fn, $ln, $pwd1, $pwd2, $email1, $email2) {
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12"></div>
                 <div class="col-md-6 col-md-6 col-sm-6 col-xs-12">
                     <div class="text-center custom-login">
+                        <img src="img/uni.jpg">
                         <h3>Registration</h3>
                         <p>Admin template with very clean and aesthetic style prepared for your next app. </p>
                     </div>
@@ -199,9 +200,9 @@ function checkinput($user, $fn, $ln, $pwd1, $pwd2, $email1, $email2) {
             </div>
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <p>Copyright © 2019 <a href="https://www.unihorn.tech">Unihorn</a> All rights reserved.</p>
+                    <p>Copyright © 2019 <a href="https://www.eastcare.tech">EastCare</a> All rights reserved.</p>
                     <p><?php print "Local Time(GMT-5): " . strftime($str); ?></p>
-                    <p><image src="img/unihorn-1.gif"</p>
+                    
                 </div>
             </div>
         </div>

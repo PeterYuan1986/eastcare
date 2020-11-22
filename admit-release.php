@@ -15,6 +15,12 @@ $str1 = date("Y-m-d", time());
 
 
 
+$sql = "SELECT * FROM disease";
+$result = mysqli_query($conn, $sql);
+while ($arr = mysqli_fetch_array($result)) {
+    $diseasedata[] = $arr;
+}
+
 
 if (isset($_SESSION['Admitid'])) {
     $patient_id = $_SESSION['Admitid'];
@@ -48,12 +54,17 @@ while ($arr = mysqli_fetch_array($result)) {
 }
 
 
+
 if (isset($_POST["admit"])) {
     $admission_date = @$_POST['admission'];
+    $dise = @$_POST['idisease'];
     $room_number = @$_POST["room"];
-    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "')";
+    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id, disease) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "','". $dise . "')";
     $result = mysqli_query($conn, $sql);
-print '<script>alert("Successful!")</script>';
+    $sql = "UPDATE `roomtype` SET `engaged`='Y' WHERE `room_number`='" . $room_number . "'";
+    $result = mysqli_query($conn, $sql);
+    print '<script>alert("Successful!")</script>';
+    print '<script> location.replace("patient-detail.php"); </script>';
 }
 
 if (isset($_POST["disc"])) {
@@ -63,7 +74,6 @@ if (isset($_POST["disc"])) {
         $result = mysqli_query($conn, $sql);
         print '<script>alert("Add Successful!")</script>';
         print '<script> location.replace("patient-detail.php"); </script>';
-        
     } else {
         print '<script>alert("Failed!Discharge time must be later than admission time!")</script>';
     }
@@ -183,15 +193,24 @@ require_once 'sidebar.php';
                                                     </select>
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Release Date</span>
-                                                    <input name="discharge" type="date" class="form-control pro-edt-select form-control-primary" <?php
-                                                    if ($discharge_date) {
-                                                        print "value='" . $discharge_date . "'";
-                                                    }
-                                                    ?>>
-                                                </div>
+                                                    <span class="input-group-addon"><i class="icon nalika-info" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Disease</span>
+                                                    <select name="idisease" class="form-control pro-edt-select form-control-primary">
+                                                        <?php
+                                                        print "<option value=''";
+                                                        print "selected";
+                                                        print "</option>";
+                                                        for ($index = 0; $index < @count($diseasedata); $index++) {
+                                                            print "<option value='" . $diseasedata[$index]['disease_id'] . "'";
+                                                            if ($row['disease'] == $diseasedata[$index]['disease_id']) {
+                                                                print " selected";
+                                                            }
+                                                            print ">" . $diseasedata[$index]['disease_info'] . "</option>";
+                                                        }
+                                                        ?>                                                                   
 
+                                                    </select>
+                                                </div>
 
                                             </div>
                                         </div>
@@ -200,7 +219,6 @@ require_once 'sidebar.php';
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="text-center custom-pro-edt-ds">
                                                 <input name="admit" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Admit"> 
-                                                <input name="disc" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Discharge">\
                                                 <input name="cancel" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Cancel">
                                             </div>
                                         </div>

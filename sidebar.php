@@ -115,17 +115,16 @@
                                 <ul class="submenu-angle" aria-expanded="false">                                   
                                     <li><a title="Doctor List" href="doctor-list.php"><span class="mini-sub-pro">Doctor List</span></a></li>
                                     <li><a title="Doctor Edit" href="doctor-edit.php"><span class="mini-sub-pro">Doctor Edit</span></a></li>
-                                    <li><a title="Doctor Detail" href="doctor-detail.php"><span class="mini-sub-pro">Doctor Detail</span></a></li>
-                                 </ul>
+                                  </ul>
                             </li>
                             <li>
-                                <a class="has-arrow" href="visitrecord.php">
+                                <a class="has-arrow" href="visitrecord-list.php">
 
                                     <i class="icon nalika-shopping-cart icon-wrap"></i>
                                     <span class="mini-click-non">Visit Record</span>
                                 </a>
                                 <ul class="submenu-angle" aria-expanded="false">                                   
-                                    <li><a title="Visit Record" href="visitrecord.php"><span class="mini-sub-pro">Visit Record List</span></a></li>
+                                    <li><a title="Visit Record" href="visitrecord-list.php"><span class="mini-sub-pro">Visit Record List</span></a></li>
                                     <li><a title="Visit Record Edit" href="visitrecord-edit.php"><span class="mini-sub-pro">Record Edit</span></a></li>
                                 </ul>
                             </li>
@@ -136,25 +135,12 @@
                                     <span class="mini-click-non">Room Info</span>
                                 </a>
                                 <ul class="submenu-angle" aria-expanded="false">                                   
-                                    <li><a title="Assign Room" href="room-assign.php"><span class="mini-sub-pro">Assign Room</span></a></li>
-                                    <li><a title="Room Occupation" href="room.php"><span class="mini-sub-pro">Room Occupation</span></a></li>
                                     <li><a title="Room List" href="room-list.php"><span class="mini-sub-pro">Room List</span></a></li>
                                     <li><a title="Room Edit" href="room-edit.php"><span class="mini-sub-pro">Room Edit</span></a></li>
                                     <li><a title="Room Type List" href="roomtype-list.php"><span class="mini-sub-pro">Room Type List</span></a></li>
                                     <li><a title="Room Type Edit" href="roomtype-edit.php"><span class="mini-sub-pro">Room Type Edit</span></a></li>
                                     
 
-                                </ul>
-                            </li>
-                            <li>
-                                <a class="has-arrow" href="diagnosis.php">
-
-                                    <i class="icon nalika-chat icon-wrap"></i>
-                                    <span class="mini-click-non">Diagnosis Info</span>
-                                </a>
-                                <ul class="submenu-angle" aria-expanded="false">                                   
-                                    <li><a title="Diagnosis DataBase" href="diagnosis-list.php"><span class="mini-sub-pro">Diagnosis List</span></a></li>
-                                    <li><a title="Diagnosis Edit" href="diagnosis-edit.php"><span class="mini-sub-pro">Diagnosis Edit</span></a></li>
                                 </ul>
                             </li>
                             <li>
@@ -186,6 +172,15 @@
                                 <ul class="submenu-angle" aria-expanded="false">                                   
                                     <li><a title="Procedure DataBase" href="procedure-list.php"><span class="mini-sub-pro">Procedure List</span></a></li>
                                     <li><a title="Procedure Edit" href="procedure-edit.php"><span class="mini-sub-pro">Procedure Edit</span></a></li>
+                                </ul>
+                            </li>
+                             <li>
+                                <a class="has-arrow" href="disease.php">
+                                    <i class="icon nalika-cloud icon-wrap"></i>
+                                    <span class="mini-click-non">Report</span>
+                                </a>
+                                <ul class="submenu-angle" aria-expanded="false">                                   
+                                    <li><a title="Procedure DataBase" href="disease-report.php"><span class="mini-sub-pro">Disease Analysis Report</span></a></li>
                                 </ul>
                             </li>
                         </ul>

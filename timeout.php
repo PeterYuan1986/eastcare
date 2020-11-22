@@ -44,7 +44,7 @@ if (isset($_POST["login"])) {
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Login | Nalika - Material Admin Template</title>
+        <title>Login | EastCare Admin System</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- favicon
@@ -111,7 +111,7 @@ if (isset($_POST["login"])) {
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="back-link back-backend">
-                        <a href="http://www.google.com" class="btn btn-primary">Back to www.unihorn.com</a>
+                        <a href="http://www.eastcare.com" class="btn btn-primary">Back to www.eastcare.com</a>
                     </div>
                 </div>
             </div>
@@ -159,7 +159,7 @@ if (isset($_POST["login"])) {
             </div>
             <div class="row">
                 <div class="col-md-12 col-md-12 col-sm-12 col-xs-12 text-center">
-                    <p>Copyright © 2019 <a href="https://www.unihorn.tech">Unihorn </a>. All rights reserved.</p>
+                    <p>Copyright © 2019 <a href="https://www.eastcare.tech">EastCare </a>. All rights reserved.</p>
                     <p><?php print "Local Time(GMT-5): " . strftime($str); ?></p>
                     <img src="img/unihorn-1.gif">
                 </div>

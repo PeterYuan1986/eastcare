@@ -15,7 +15,7 @@ check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
 $datanote = check_note($cmpid);
 $totalnotes = sizeof($datanote);
 
-$columns = array('visitrecord_id', 'visit_date','patient_name','docotor_name','visit_bill','disease','procedure','medicine');
+$columns = array('visitrecord_id', 'visit_date','doctor_id','patient_id','visit_bill','disease_info','procedure_name','medicine_info');
 $column = isset($_GET['column']) && in_array($_GET['column'], $columns) ? $_GET['column'] : $columns[0];
 $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 //$perpage = 20;
@@ -26,8 +26,7 @@ if (!isset($_SESSION['visitrecord-list_searchtext'])) {
 if (isset($_POST['search'])) {
     $_SESSION['visitrecord-list_searchtext'] = $_POST['searchtext'];
 }
-$sql = "select * from visitrecord where visitrecord_id LIKE '%" . $_SESSION['visitrecord-list_searchtext'] . "%' ORDER BY " . $column . ' ' . $sort_order;
-
+$sql = "SELECT visitrecord_id, `visit_date`, visitrecord.doctor_id,visitrecord.patient_id,`disease_info`,`procedure_name`,`medicine_info`,`visit_bill` ,doctor.name as doctor_name, patient.name as patient_name FROM visitrecord NATURAL JOIN medicine NATURAL JOIN procedur NATURAL JOIN disease  JOIN doctor JOIN patient where visitrecord.patient_id=patient.patient_id and visitrecord.doctor_id=doctor.doctor_id and  ((visitrecord_id LIKE '%" . $_SESSION['visitrecord-list_searchtext'] . "%') OR (doctor.name LIKE '%" . $_SESSION['visitrecord-list_searchtext'] . "%') OR (patient.name LIKE '%" . $_SESSION['visitrecord-list_searchtext'] . "%')) ORDER BY " . $column . ' ' . $sort_order;
 
 $result = mysqli_query($conn, $sql);
 $totalrow = mysqli_num_rows($result);
@@ -50,12 +49,8 @@ for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "trash" . $i;
     if (isset($_REQUEST["{$tem}"])) {
         $_REQUEST["{$tem}"] = 0;
-        $sqldelvisitrecord = "DELETE FROM `visitrecord` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
-        mysqli_query($conn, $sqldelvisitrecord);
-        $sqldelpatientvisitdoctor = "DELETE FROM `patientvisitdoctor` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
-        mysqli_query($conn, $sqldelpatientvisitdoctor);
-        $sqldeldiagnosis = "DELETE FROM `diagnosis` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";
-        mysqli_query($conn, $sqldeldiagnosis);
+        $sqldelvisitrecord = "DELETE FROM `visitrecord` WHERE visitrecord_id='" . $data[$i]['visitrecord_id'] . "'";        
+        $result = mysqli_query($conn, $sqldelvisitrecord);
         header('location: ' . $_SERVER['HTTP_REFERER']);
         break;
     }
@@ -73,8 +68,7 @@ for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "edit" . $i;
     if (isset($_REQUEST["{$tem}"])) {
         $_REQUEST["{$tem}"] = 0;
-        $_SESSION['editsku'] = $data[$i]['visitrecord_id'];
-        var_dump($_SESSION['editsku']);
+        $_SESSION['editvisit'] = $data[$i]['visitrecord_id'];
         header('location:visitrecord-edit.php');
         break;
     }
@@ -147,8 +141,8 @@ require_once 'sidebar.php';
                             <tr>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=visitrecord_id&order=<?php echo $asc_or_desc; ?>">Visit Record Number <i class=" fa fa-sort<?php echo $column == 'visitrecord_id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=visit_date&order=<?php echo $asc_or_desc; ?>">Visit Date <i class=" fa fa-sort<?php echo $column == 'visit_date' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                <th><a style="color: #fff" href="visitrecord-list.php?column=doctor_name&order=<?php echo $asc_or_desc; ?>">Doctor <i class=" fa fa-sort<?php echo $column == 'doctor_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-                                <th><a style="color: #fff" href="visitrecord-list.php?column=patient_name&order=<?php echo $asc_or_desc; ?>">Patient <i class=" fa fa-sort<?php echo $column == 'patient_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="visitrecord-list.php?column=doctor_name&order=<?php echo $asc_or_desc; ?>">Doctor <i class=" fa fa-sort<?php echo $column == 'doctor_id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                                <th><a style="color: #fff" href="visitrecord-list.php?column=patient_name&order=<?php echo $asc_or_desc; ?>">Patient <i class=" fa fa-sort<?php echo $column == 'patient_id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=disease_name&order=<?php echo $asc_or_desc; ?>">Disease <i class=" fa fa-sort<?php echo $column == 'disease_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=procedure_name&order=<?php echo $asc_or_desc; ?>">Procedure <i class=" fa fa-sort<?php echo $column == 'procedure_name' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="visitrecord-list.php?column=medicine_info&order=<?php echo $asc_or_desc; ?>">Medicine <i class=" fa fa-sort<?php echo $column == 'medicine_info' ? '-' . $up_or_down : ''; ?>"></i></a></th>
@@ -169,39 +163,14 @@ require_once 'sidebar.php';
 //      else {', '', '', '', '', ''
                             for ($index = 0; $index < @count($data); $index++) {
                                 print '<tr>';
-                                print "<td>{$data[$index]['visitrecord_id']}</td>";
-                                print "<td>{$data[$index]['visit_date']}</td>";
-                                $sql="select  doctor.name from doctor NATURAL JOIN patientvisitdoctor NATURAL JOIN visitrecord WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";          
-
-                                $sql="select  patient.name from patient NATURAL JOIN patientvisitdoctor NATURAL JOIN visitrecord WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  disease.disease_info from disease NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  procedur.procedure_name from procedur NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                $sql="select  medicine.medicine_info from medicine NATURAL JOIN diagnosis WHERE visitrecord_id='" . $data[$index]['visitrecord_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                // var_dump($sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";  
-
-                                print "<td>{$data[$index]['visit_bill']}</td>";
+                                print "<td>{$data[$index][0]}</td>";
+                                print "<td>{$data[$index][1]}</td>";
+                                print "<td>".$data[$index][2]."-". $data[$index]['doctor_name']."</td>";
+                                print "<td>".$data[$index][3]."-".$data[$index]['patient_name']."</td>";
+                                print "<td>{$data[$index][4]}</td>";
+                                print "<td>{$data[$index][5]}</td>";
+                                print "<td>{$data[$index][6]}</td>";
+                                print "<td>{$data[$index][7]}</td>";
                                 $edit = "edit" . $index;
                                 $trash = "trash" . $index;
                                 ?>

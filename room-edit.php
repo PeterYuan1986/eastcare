@@ -78,15 +78,15 @@ $totalnotes = sizeof($datanote);
 
 
 
-if (isset($_SESSION['editsku'])) {
-    $room_number = $_SESSION['editsku'];
+if (isset($_SESSION['editroom'])) {
+    $room_number = $_SESSION['editroom'];
     $_SESSION['updateroomrid'] = $room_number;
     $sql = "SELECT * FROM `roomtype` WHERE room_number ='" . $room_number . "'";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
     $room_number = $row['room_number'];
     $type_id = $row['type_id'];
-    unset($_SESSION['editsku']);
+    unset($_SESSION['editroom']);
 } else {
     if (isset($_REQUEST['search'])) {
         $sql = "SELECT *  FROM `roomtype` WHERE room_number ='" . $_POST['searcheditorder'] . "'";

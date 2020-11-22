@@ -120,8 +120,7 @@ if (isset($_POST["login"])) {
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12"></div>
                 <div class="col-md-4 col-md-4 col-sm-4 col-xs-12">
                     <div class="text-center m-b-md custom-login">   
-
-
+                        <img src="img/uni.jpg">  
                         <h3>PLEASE LOGIN TO APP</h3>
 
                         <p>This is the best app ever!</p>
@@ -158,9 +157,8 @@ if (isset($_POST["login"])) {
             </div>
             <div class="row">
                 <div class="col-md-12 col-md-12 col-sm-12 col-xs-12 text-center">
-                    <p>Copyright © 2019 <a href="https://www.unihorn.tech">Unihorn </a>. All rights reserved.</p>
+                    <p>Copyright © 2019 <a href="https://www.eastcare.com">EastCare </a>. All rights reserved.</p>
                     <p><?php print "Local Time(GMT-5): " . strftime($str); ?></p>
-                    <img src="img/unihorn-1.gif">
                 </div>
             </div>
         </div>

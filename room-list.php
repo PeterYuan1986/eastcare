@@ -15,7 +15,7 @@ check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
 $datanote = check_note($cmpid);
 $totalnotes = sizeof($datanote);
 
-$columns = array('room_number', 'room_type','room_price');
+$columns = array('room_number', 'type_info','type_price','room_price','engaged');
 $column = isset($_GET['column']) && in_array($_GET['column'], $columns) ? $_GET['column'] : $columns[0];
 $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 //$perpage = 20;
@@ -26,8 +26,7 @@ if (!isset($_SESSION['room-list_searchtext'])) {
 if (isset($_POST['search'])) {
     $_SESSION['room-list_searchtext'] = $_POST['searchtext'];
 }
-$sql = "select * from roomtype where room_number LIKE '%" . $_SESSION['room-list_searchtext'] . "%' ORDER BY " . $column . ' ' . $sort_order;
-
+$sql = "select room_number, type_info,type_price,engaged from roomtype natural join typed where room_number LIKE '%" . $_SESSION['room-list_searchtext'] . "%' ORDER BY " . $column . ' ' . $sort_order;
 
 $result = mysqli_query($conn, $sql);
 $totalrow = mysqli_num_rows($result);
@@ -43,6 +42,7 @@ if ($totalrow != 0) {
     while ($arr = mysqli_fetch_array($result)) {
         $data[] = $arr;
     }
+
 }
 //    if (empty(@$_GET['page']) || !is_numeric(@$_GET['page']) || @$_GET['page'] < 1 || @$_GET['page'] > $totalpage) {
 //       $page = 1;
@@ -77,9 +77,9 @@ for ($i = 0; $i < @count(@$data); $i++) {
 
 for ($i = 0; $i < @count(@$data); $i++) {
     $tem = "edit" . $i;
-    if (isset($_REQUEST["{$tem}"])) {
+    if (isset($_REQUEST["{$tem}"])) {        
+        $_SESSION['editroom'] = $data[$i][0];
         $_REQUEST["{$tem}"] = 0;
-        $_SESSION['editsku'] = $data[$i]['room_number'];
         header('location:room-edit.php');
         break;
     }
@@ -153,7 +153,8 @@ require_once 'sidebar.php';
                                 <th><a style="color: #fff" href="room-list.php?column=room_number&order=<?php echo $asc_or_desc; ?>">Room Number <i class=" fa fa-sort<?php echo $column == 'room_number' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="room-list.php?column=room_type&order=<?php echo $asc_or_desc; ?>">Type <i class=" fa fa-sort<?php echo $column == 'room_type' ? '-' . $up_or_down : ''; ?>"></i></a></th>
                                 <th><a style="color: #fff" href="room-list.php?column=room_price&order=<?php echo $asc_or_desc; ?>">Price <i class=" fa fa-sort<?php echo $column == 'room_price' ? '-' . $up_or_down : ''; ?>"></i></a></th>
-  
+                                  <th><a style="color: #fff" href="room-list.php?column=room_price&order=<?php echo $asc_or_desc; ?>">Engaged <i class=" fa fa-sort<?php echo $column == 'room_price' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+    
                                 <th>Setting</th>
                             </tr>
 
@@ -167,23 +168,18 @@ require_once 'sidebar.php';
 //      else {', '', '', '', '', ''
                             for ($index = 0; $index < @count($data); $index++) {
                                 print '<tr>';
-                                print "<td>{$data[$index]['room_number']}</td>";
-                                $sql="select DISTINCT typed.type_info from typed NATURAL JOIN roomtype WHERE type_id='" . $data[$index]['type_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";                                
-                                // print "<td>{$data[$index]['type_price']}</td>";
-                                $sql="select DISTINCT typed.type_price from typed NATURAL JOIN roomtype WHERE type_id='" . $data[$index]['type_id'] . "'";
-                                $result = mysqli_query($conn, $sql);
-                                $row = mysqli_fetch_array($result);
-                                print "<td>$row[0]</td>";
+                                print "<td>{$data[$index][0]}</td>";
+                                print "<td>{$data[$index][1]}</td>";
+                                print "<td>{$data[$index][2]}</td>";
+                                print "<td>{$data[$index][3]}</td>";
+                               
                                 $edit = "edit" . $index;
                                 $trash = "trash" . $index;
                                 ?>
 
                                 <td>
                                     <button data-toggle="tooltip" name ="<?php print $edit; ?>"    type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                                    <button data-toggle="tooltip" name ="<?php print $trash; ?>"     type="submit" title="Edit" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                    <button data-toggle="tooltip" name ="<?php print $trash; ?>"     type="submit" title="Delete" onclick="return confirmation()" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
 
                                 </td >  
                                 </tr>
