@@ -20,7 +20,7 @@ if (isset($_POST['Admit'])) {
 if (isset($_POST['Visit'])) {
     $_SESSION['Visitid'] = $_SESSION['patient_id'];
     unset($_SESSION['patient_id']);
-    header('location:visitrecord.php');
+    header('location:visitrecord-patient.php');
 }
 if (isset($_POST['Bill'])) {
     $_SESSION['Billid'] = $_SESSION['patient_id'];
@@ -133,13 +133,13 @@ require_once 'sidebar.php';
                                     <i class="icon nalika-edit"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Product Detail</h2>
-                                    <p>Welcome to Unihorn Management System <span class="bread-ntd"></span></p>
+                                    <h2>Patient Detail</h2>
+                                    <p>Welcome to East Care Admin System <span class="bread-ntd"></span></p>
                                     <p>---------------------------------------------------------------------<span class="bread-ntd"></span></p>
                                     <form method="post" role="search" class="">
 
 
-                                        <div style="width:200px;float:left;"><input name="searchtext" type="text" placeholder="Search Content....." value="<?php
+                                        <div style="width:200px;float:left;"><input name="searchtext" type="text" placeholder="Search Patient Name....." value="<?php
                                             if (isset($_SESSION['detailpagesearchtext'])) {
                                                 print $_SESSION['detailpagesearchtext'];
                                             }
