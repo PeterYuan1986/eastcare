@@ -12,6 +12,22 @@ $cmpid = $_SESSION['user_info']['cmpid'];
 $childid = $_SESSION['user_info']['childid'];
 check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
 
+if (isset($_POST['Admit'])) {
+    $_SESSION['Admitid'] = $_SESSION['patient_id'];
+    unset($_SESSION['patient_id']);
+    header('Location:admit-release.php');
+}
+if (isset($_POST['Visit'])) {
+    $_SESSION['Visitid'] = $_SESSION['patient_id'];
+    unset($_SESSION['patient_id']);
+    header('location:visitrecord.php');
+}
+if (isset($_POST['Bill'])) {
+    $_SESSION['Billid'] = $_SESSION['patient_id'];
+
+    unset($_SESSION['patient_id']);
+    header('location:bill.php');
+}
 
 // 换cmpid在页面顶端
 if (sizeof($childid) > 1) {
@@ -66,43 +82,42 @@ for ($i = 0; $i < $perpage; $i++) {
         $sql = "select * from patient where  patient_id='" . $_SESSION['patient_id'] . "'";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_array($result);
-        $_SESSION['detailpatientname'] = $row[1];
-        $_SESSION['detailpatientbirth'] = $row[2];
-        $_SESSION['detailpatientgender'] = $row[3];
-        $_SESSION['detailpatientinsuranceinfo'] = $row[4];
-        $_SESSION['detailpatientinhospital'] = $row[5];
-        $_SESSION['detailpatientaddress'] = $row[6];
-        $_SESSION['detailpatientaddress2'] = $row[7];
-        $_SESSION['detailpatientcity'] = $row[8];
-        $_SESSION['detailpatientstate'] = $row[9];
-        $_SESSION['detailpatientzipcode'] = $row[10];
-        $_SESSION['detailpatientphone'] = $row[11];
-        break;
+        @$_SESSION['detailpatientname'] = $row[1];
+        @$_SESSION['detailpatientbirth'] = $row[2];
+        @$_SESSION['detailpatientgender'] = $row[3];
+        @$_SESSION['detailpatientinsuranceinfo'] = $row[4];
+        @$_SESSION['detailpatientinhospital'] = $row[5];
+        @$_SESSION['detailpatientaddress'] = $row[6];
+        @$_SESSION['detailpatientaddress2'] = $row[7];
+        @$_SESSION['detailpatientcity'] = $row[8];
+        @$_SESSION['detailpatientstate'] = $row[9];
+        @$_SESSION['detailpatientzipcode'] = $row[10];
+        @$_SESSION['detailpatientphone'] = $row[11];
+
+        $sql = "select * from hospitalizationrecord where patient_id ='" . $_SESSION['patient_id'] . "' order by hospitalization_id DESC";
+        $result = mysqli_query($conn, $sql);
+        $totalrows = mysqli_num_rows($result);
+        if ($totalrows > 0) {
+            $row = mysqli_fetch_array($result);
+            @$_SESSION['detailadmission_date'] = $row['admission_date'];
+            @$_SESSION['detailroom_number'] = $row['room_number'];
+            @$_SESSION['detaildischarge_date'] = $row['discharge_date'];
+            if (@$_SESSION['detaildischarge_date'] != NULL) {
+                @$_SESSION['detailinhospital'] = 'NO';
+                @$_SESSION['detailroom_number'] = NULL;
+            } else {
+                @$_SESSION['detailinhospital'] = 'YES';
+                @$_SESSION['detailroom_number'] = $row['room_number'];
+            }
+        } else {
+            @$_SESSION['detailadmission_date'] = NULL;
+            @$_SESSION['detailroom_number'] = NULL;
+            @$_SESSION['detaildischarge_date'] = NULL;
+            @$_SESSION['detailinhospital'] = 'NO';
+        }
     }
 }
 require_once 'sidebar.php';
-
-if(isset($_POST['Admit'])){
-    $_SESSION['Admitid']=$_SESSION['patient_id'];
-    head('location:admit-release.php');    
-}
-if(isset($_POST['Vist'])){
-    $_SESSION['Admitid']=$_SESSION['patient_id'];
-    head('location:admit-release.php');    
-}
-if(isset($_POST['Bill'])){
-    $_SESSION['Admitid']=$_SESSION['patient_id'];
-    head('location:admit-release.php');    
-}
-                                        
-                                        <a  href="#" onclick="openNewWin('admit-release.php');">
-                                            <i class='icon pro-button' Style='color:#fff'>Admit/Discharge</i></a> 
-                                        <a href="#" onclick="openNewWin('visitrecord.php');">
-                                            <i class="icon pro-button" Style="color:#fff">Visit Record</i></a>     
-                                        <a href="#" onclick="openNewWin('generate.php');">
-                                            <i  class="icon pro-button" Style="color:#fff">Print Bill</i></a>   
-
-
 ?>
 
 <!-- Mobile Menu end -->
@@ -147,16 +162,16 @@ if(isset($_POST['Bill'])){
 </div>
 
 <!-- Single pro tab start-->
+<form action="" method="post" name="form">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="single-product-pr">
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                            <div id="myTabContent1" class="tab-content" style="width:400px" >
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="single-product-pr">
-                <div class="row">
-                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                        <div id="myTabContent1" class="tab-content" style="width:400px" >
 
-                            <form action="" method="post" name="form">
 
 
                                 <table style="width: 100%;margin:auto;color: #fff">
@@ -219,87 +234,90 @@ if(isset($_POST['Bill'])){
                                     </ul>
                                 </div>
 
-                            </form>
+
+
+                            </div>
 
                         </div>
 
-                    </div>
+
+                        <div class="col-lg-5 col-md-7 col-sm-7 col-xs-12">
+                            <div class="single-product-details res-pro-tb">
+                                <div class="single-pro-price">
+                                    <span class="single-regular"><?php print "Patiend ID: " . @$_SESSION['patient_id']; ?></span>
+                                </div>                                        
+                                <span class="single-pro-star">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </span>
+                                <h4 style="color:#fff" >    <?php print @$_SESSION['detailpatientname']; ?></h4>
 
 
-                    <div class="col-lg-5 col-md-7 col-sm-7 col-xs-12">
-                        <div class="single-product-details res-pro-tb">
-                            <div class="single-pro-price">
-                                <span class="single-regular"><?php print "Patiend ID" . @$_SESSION['patientid']; ?></span>
-                            </div>                                        
-                            <span class="single-pro-star">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </span>
-                            <h4 style="color:#fff" >    <?php print @$_SESSION['detailpatientname']; ?></h4>
+                                <!--    
+                                        $_SESSION['detailpatientinsuranceinfo'] = $row[4];
+                                        $_SESSION['detailpatientinhospital'] = $row[5];
+                                        $_SESSION['detailpatientaddress'] = $row[6];
+                                        $_SESSION['detailpatientaddress2'] = $row[7];
+                                        $_SESSION['detailpatientcity'] = $row[8];
+                                        $_SESSION['detailpatientstate'] = $row[9];
+                                        $_SESSION['detailpatientzipcode'] = $row[10];
+                                        $_SESSION['detailpatientphone'] = $row[11];-->
 
 
-                            <!--    
-                                    $_SESSION['detailpatientinsuranceinfo'] = $row[4];
-                                    $_SESSION['detailpatientinhospital'] = $row[5];
-                                    $_SESSION['detailpatientaddress'] = $row[6];
-                                    $_SESSION['detailpatientaddress2'] = $row[7];
-                                    $_SESSION['detailpatientcity'] = $row[8];
-                                    $_SESSION['detailpatientstate'] = $row[9];
-                                    $_SESSION['detailpatientzipcode'] = $row[10];
-                                    $_SESSION['detailpatientphone'] = $row[11];-->
+                                <div class="single-pro-size">
+                                    <h4 style="color:#fff" >Date of Birth:<?php print @$_SESSION['detailpatientbirth']; ?></h4>
+                                    <h4 style="color:#fff"  >Gender: <?php print @$_SESSION['detailpatientgender']; ?></h4>
+                                    <h4 style="color:#fff"  >Insurance Info: <?php print @$_SESSION['detailpatientinsuranceinfo']; ?></h4>
+                                    <h4 style="color:#fff"  >In Hosipital: <?php print @$_SESSION['detailinhospital']; ?></h4>
+                                    <h4 style="color:#fff"  >Room Info: <?php print @$_SESSION['detailroom_number']; ?></h4>
+                                    <h4 style="color:#fff"  >Last admission date: <?php print @$_SESSION['detailadmission_date']; ?></h4>
+                                    <h4 style="color:#fff"  >Last discharge date: <?php print @$_SESSION['detaildischarge_date']; ?></h4>
 
 
-                            <div class="single-pro-size">
-                                <h4 style="color:#fff" >Date of Birth:<?php print @$_SESSION['detailpatientbirth']; ?></h4>
-                                <h4 style="color:#fff"  >Gender: <?php print @$_SESSION['detailpatientgender']; ?></h4>
-                                <h4 style="color:#fff"  >Insurance Info: <?php print @$_SESSION['detailpatientinsuranceinfo']; ?></h4>
-                                <h4 style="color:#fff"  >In Hosipital: <?php print @$_SESSION['detailpatientinhospital']; ?></h4>
-                                <h4 style="color:#fff"  >Room Info: <?php print @$_SESSION['detailpatientinhospital']; ?></h4>
-                                <h4 style="color:#fff"  >Last admission date: <?php print @$_SESSION['detailpatientinhospital']; ?></h4>
-                                <h4 style="color:#fff"  >Last discharge date: <?php print @$_SESSION['detailpatientinhospital']; ?></h4>
+                                </div>
+                                <div class="color-quality-pro">
+                                    <div class="color-quality-details">
+                                        <h5>Private Address:</h5>
+                                        <h5 style="color:#fff" ><?php
+                                            print @$_SESSION['detailpatientaddress'] . ' ' . @$_SESSION['detailpatientaddress2'] . ',' . @$_SESSION['detailpatientcity'] . ','
+                                                    . @$_SESSION['detailpatientstate'] . ' ' . @$_SESSION['detailpatientzipcode'];
+                                            ?></h5>                                                
+                                        <h5 style="color:#fff"  >Cell: <?php print @$_SESSION['detailpatientphone']; ?></h5>
 
-                            </div>
-                            <div class="color-quality-pro">
-                                <div class="color-quality-details">
-                                    <h5>Private Address:</h5>
-                                    <h5 style="color:#fff" ><?php
-                                        print @$_SESSION['detailpatientaddress'] . ' ' . @$_SESSION['detailpatientaddress2'] . ',' . @$_SESSION['detailpatientcity'] . ','
-                                                . @$_SESSION['detailpatientstate'] . ' ' . @$_SESSION['detailpatientzipcode'];
-                                        ?></h5>                                                
-                                    <h5 style="color:#fff"  >Cell: <?php print @$_SESSION['detailpatientphone']; ?></h5>
+                                    </div>     
+                                </div>
 
-                                </div>     
-                            </div>
+                                <div class="clear"></div>
+                                <div >
 
-                            <div class="clear"></div>
-                            <div >
-                                <form method="post">
                                     <div >
                                         <input type="submit" name='Admit' value="Admit/Discharge" >
                                         <input type="submit" name='Visit' value="Visit Record" >
                                         <input type="submit" name='Bill' value="Print Bill" >
                                     </div>
-                                </form>
-                            </div>
-                            <div class="clear"></div>
-                            <div class="single-social-area">
-                                <h3>share this on</h3>
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-google-plus"></i></a>
-                                <a href="#"><i class="fa fa-feed"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-linkedin"></i></a>
+
+                                </div>
+                                <div class="clear"></div>
+                                <div class="single-social-area">
+                                    <h3>share this on</h3>
+                                    <a href="#"><i class="fa fa-facebook"></i></a>
+                                    <a href="#"><i class="fa fa-google-plus"></i></a>
+                                    <a href="#"><i class="fa fa-feed"></i></a>
+                                    <a href="#"><i class="fa fa-twitter"></i></a>
+                                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-</div>
+</form>
 
 <!-- jquery
             ============================================ -->
@@ -357,10 +375,10 @@ if(isset($_POST['Bill'])){
 
 
 <script type="text/javascript">
-                                            function openNewWin(url)
-                                            {
-                                                window.open(url);
-                                            }
+    function openNewWin(url)
+    {
+        window.open(url);
+    }
 </script>
 </body>
 

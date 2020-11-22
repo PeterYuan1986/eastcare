@@ -11,87 +11,67 @@ $userlevel = $_SESSION['user_info']['level'];           //userlevel  0: admin; e
 $cmpid = $_SESSION['user_info']['cmpid'];
 $childid = $_SESSION['user_info']['childid'];
 check_access($useroffice, $userlevel, $pageoffice, $pagelevel);
+$str1 = date("Y-m-d", time());
 
 
-if (isset($_SESSION['patient_id'])) {
-    $patient_id = $_SESSION['patient_id'];
+
+
+if (isset($_SESSION['Admitid'])) {
+    $patient_id = $_SESSION['Admitid'];
+} else {
+    header('location:patient-detail.php');
 }
-else{
-    head('location:patient-detail.php');
-}
-$sql = "SELECT * FROM `patient` WHERE patient_id ='" . $patient_id . "'";
+$sql = "select * from hospitalizationrecord where patient_id ='" . $patient_id . "' order by hospitalization_id DESC";
 $result = mysqli_query($conn, $sql);
-$row = mysqli_fetch_array($result);
-$birthday = $row['birthday'];
-$gender = $row['gender'];
-$name = $row['name'];
-$address = $row['address'];
-$address2 = $row['address2'];
-$city = $row['city'];
-$state = $row['state'];
-$zipcode = $row['zipcode'];
-$phone = $row['phone'];
-$inote = $row['insurance_info'];
-
-
-
-
-if (isset($_POST["save"])) {
-    $ibirthday = @$_POST['ibirthday'];
-    $igender = @$_POST['igender'];
-    $iname = @$_POST["iname"];
-    $iaddress = @$_POST["iaddress"];
-    $iaddress2 = @$_POST["iaddress2"];
-    $icity = @$_POST["icity"];
-    $istate = @$_POST["istate"];
-    $izipcode = @$_POST["izipcode"];
-    $iphone = @$_POST["iphone"];
-    $inote = @$_POST["insurance_info"];
-    updatestr();
-
-    $sql = "INSERT INTO `patient`(`birthday` , `gender`, `name`,`address`,`address2`, `city`, `state`, `zipcode`, `phone`, insurance_info) VALUES('" . $ibirthday . "','" . $igender . "','" . $iname . "','" . $iaddress . "','" . $iaddress2 . "','" . $icity . "','" . $istate . "','" . $izipcode . "','" . $iphone . "','" . $inote . "')";
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        print '<script>alert("Add Successful!")</script>';
-        print '<script> location.replace("patient-list.php"); </script>';
+$totalrow = mysqli_num_rows($result);
+if ($totalrow > 0) {
+    $row = mysqli_fetch_array($result);
+    if ($row['discharge_date'] == NULL) {
+        @$admission_date = $row['admission_date'];
+        @$room_number = $row['room_number'];
+        @$discharge_date = NULL;
+        $_SESSION['hospitalizationid'] = $row[0];
     } else {
-        print '<script>alert("Add Failed! Please check and try again!")</script>';
+        $admission_date = NULL;
+        $room_number = NULL;
+        $discharge_date = NULL;
     }
+} else {
+    $admission_date = NULL;
+    $room_number = NULL;
+    $discharge_date = NULL;
+}
+$sql = "SELECT `room_number` FROM `roomtype` where engaged='N' ORDER BY room_number DESC";
+$result = mysqli_query($conn, $sql);
+while ($arr = mysqli_fetch_array($result)) {
+    $roomdata[] = $arr;
 }
 
-if (isset($_POST["update"])) {
-    $ibirthday = @$_POST['ibirthday'];
-    $igender = @$_POST['igender'];
-    $iname = @$_POST["iname"];
-    $iaddress = @$_POST["iaddress"];
-    $iaddress2 = @$_POST["iaddress2"];
-    $icity = @$_POST["icity"];
-    $istate = @$_POST["istate"];
-    $izipcode = @$_POST["izipcode"];
-    $iphone = @$_POST["iphone"];
-    $inote = @$_POST["insurance_info"];
-    updatestr();
-    $sql = "UPDATE `patient` SET `insurance_info`='" . $inote . "', `birthday`='" . $ibirthday . "', `gender`='" . $igender . "', `name`='" . $iname . "',`address`='" . $iaddress . "', `city`='" . $icity . "', `state`='" . $istate . "',  `zipcode`='" . $izipcode . "', `phone`='" . $iphone . "',address2='" . $iaddress2 . "'WHERE patient_id='" . $_SESSION['updatepatientid'] . "'";
+
+if (isset($_POST["admit"])) {
+    $admission_date = @$_POST['admission'];
+    $room_number = @$_POST["room"];
+    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "')";
     $result = mysqli_query($conn, $sql);
-    if ($result) {
-        print '<script>alert("Edit Successful!")</script>';
-        unset($_SESSION['updatepatientid']);
-        print '<script> location.replace("patient-list.php"); </script>';
-    } else {
-        print '<script>alert("Edit Failed! Please check and try again!")</script>';
-    }
+print '<script>alert("Successful!")</script>';
 }
 
-if (isset($_POST["delete"])) {
-    if ($doctor_id != $nextid) {
-        $sql = "DELETE from patient  WHERE patient='" . $_SESSION['updatepatientid'] . "'";
+if (isset($_POST["disc"])) {
+    $discharge_date = $_POST['discharge'];
+    $sql = "UPDATE `hospitalizationrecord` SET `discharge_date`='" . $discharge_date . "'  where hospitalization_id= '" . $_SESSION['hospitalizationid'] . "'";
+    if ($discharge_date != NULL && $admission_date < $discharge_date) {
         $result = mysqli_query($conn, $sql);
-        unset($_SESSION['updatepatientid']);
-        print '<script>alert("Delete Successful!")</script>';
-        header('Location:' . $_SERVER["PHP_SELF"]);
+        print '<script>alert("Add Successful!")</script>';
+        print '<script> location.replace("patient-detail.php"); </script>';
+        
     } else {
-        print '<script>alert("Delete Unsuccessful!Please check the doctor ID")</script>';
+        print '<script>alert("Failed!Discharge time must be later than admission time!")</script>';
     }
+}
+
+
+if (isset($_POST["cancel"])) {
+    header('location:patient-detail.php');
 }
 
 function updatestr() {
@@ -132,7 +112,7 @@ require_once 'sidebar.php';
                                     <i class="icon nalika-edit"></i>
                                 </div>
                                 <div class="breadcomb-ctn">
-                                    <h2>Patient Edit</h2>
+                                    <h2>Admit/Discharge</h2>
                                     <p>Welcome to EastCare Admin System <span class="bread-ntd"></span></p>
                                 </div>
 
@@ -154,27 +134,7 @@ require_once 'sidebar.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div>
-                        <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
-                            <div class="header-top-menu tabl-d-n">
-                                <div class="breadcome-heading">
-                                    <form method="post" role="search" class="">
 
-
-                                        <div style="width:200px;float:left;"><input name="searcheditorder" type="text" placeholder="Search Patient ID" value="<?php
-if (isset($_SESSION['orderidserchtext'])) {
-    print $_SESSION['orderidserchtext'];
-}
-?>" ></div>
-                                        <div style="color:#fff;width:000px;float:left;">
-                                            <button name="search" type="submit" value="search" class="pd-setting-ed"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
                     <div class="review-tab-pro-inner">
@@ -190,113 +150,46 @@ if (isset($_SESSION['orderidserchtext'])) {
                                                 <div class="input-group mg-b-pro-edt">
 
                                                     <span class="input-group-addon">Patient ID: <?php
-                                            print $patient_id;
-?></span>
+                                                        print $patient_id;
+                                                        ?></span>
 
                                                 </div>
 
                                                 <div class="input-group mg-b-pro-edt">
                                                     <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Date of Birth</span>
-                                                    <input name="ibirthday" type="date" class="form-control pro-edt-select form-control-primary" <?php
-                                                        if ($birthday) {
-                                                            print "value='" . $birthday . "'";
-                                                        }
-?>>
+                                                    <span class="input-group-addon">Admission Date</span>
+                                                    <input name="admission" type="date" class="form-control pro-edt-select form-control-primary" <?php
+                                                    if ($admission_date) {
+                                                        print "value='" . $admission_date . "'";
+                                                    }
+                                                    ?>>
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
                                                     <span class="input-group-addon"><i class="icon nalika-info" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Gender</span>
-                                                    <select name="igender" class="form-control pro-edt-select form-control-primary">
+                                                    <span class="input-group-addon">Room number</span>
 
-                                                        <option value="Male"    <?php
-                                                    if ($gender === 'Male') {
-                                                        print "selected";
-                                                    }
-?>>Male</option>
-                                                        <option value="Female"  <?php
-                                                        if ($gender === 'Female') {
-                                                            print "selected";
+                                                    <select name="room" class="form-control pro-edt-select form-control-primary">
+                                                        <option value=''></option>
+                                                        <?php
+                                                        for ($index = 0; $index < @count($roomdata); $index++) {
+                                                            print "<option value='" . $roomdata[$index]['room_number'] . "'";
+                                                            if ($room_number == $roomdata[$index]['room_number']) {
+                                                                print " selected";
+                                                            }
+
+                                                            print ">" . $roomdata[$index]['room_number'] . "</option>";
                                                         }
-?>>Female</option>
-
+                                                        ?>  
                                                     </select>
                                                 </div>
                                                 <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-newspaper-o" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Insurance Info</span>
-                                                    <input name="inote" type="text"  class="form-control" placeholder="Please enter here" <?php
-                                                        if ($inote) {
-                                                            print "value='" . $inote . "'";
-                                                        }
-?>>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                            <div class="review-content-section">                                                            
-                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-male" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Patient Name</span>
-                                                    <input name="iname" type="text" required="" class="form-control" placeholder="" <?php
-                                                    if ($name) {
-                                                        print "value='" . $name . "'";
+                                                    <span class="input-group-addon"><i class="icon nalika-menu" aria-hidden="true"></i></span>
+                                                    <span class="input-group-addon">Release Date</span>
+                                                    <input name="discharge" type="date" class="form-control pro-edt-select form-control-primary" <?php
+                                                    if ($discharge_date) {
+                                                        print "value='" . $discharge_date . "'";
                                                     }
-?>>
-                                                </div>
-                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Address Line 1</span>
-                                                    <input name="iaddress" type="text" required="" class="form-control" placeholder="" <?php
-                                                    if ($address) {
-                                                        print "value='" . $address . "'";
-                                                    }
-?>>
-                                                </div>   
-                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Address Line 2</span>
-                                                    <input name="iaddress2" type="text"  class="form-control" placeholder="" <?php
-                                                    if ($address) {
-                                                        print "value='" . $address2 . "'";
-                                                    }
-?>>
-                                                </div>  
-
-                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">City</span>
-                                                    <input name="icity" type="text" required="" class="form-control" placeholder="" <?php
-                                                    if ($city) {
-                                                        print "value='" . $city . "'";
-                                                    }
-?>>
-                                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">State</span>
-                                                    <input name="istate" type="text" required="" class="form-control" placeholder="" <?php
-                                                    if ($city) {
-                                                        print "value='" . $state . "'";
-                                                    }
-?>>
-                                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">ZipCode</span>
-                                                    <input name="izipcode" type="text" class="form-control" placeholder="" <?php
-                                                    if ($zipcode) {
-                                                        print "value='" . $zipcode . "'";
-                                                    }
-?>>
-                                                </div>
-                                                <div class="input-group mg-b-pro-edt">
-                                                    <span class="input-group-addon"><i class="fa fa-phone" aria-hidden="true"></i></span>
-                                                    <span class="input-group-addon">Cell Phone / Email Address</span>
-                                                    <input name="iphone" type="text" required="" class="form-control" placeholder="" <?php
-                                                    if ($phone) {
-                                                        print "value='" . $phone . "'";
-                                                    }
-?>>
-
+                                                    ?>>
                                                 </div>
 
 
@@ -306,9 +199,9 @@ if (isset($_SESSION['orderidserchtext'])) {
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="text-center custom-pro-edt-ds">
-                                                <input name="save" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Add New Doctor">
-                                                <input name="update" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Update Doctor Info">
-                                                <input name="delete" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Delete Doctor">
+                                                <input name="admit" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Admit"> 
+                                                <input name="disc" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Discharge">\
+                                                <input name="cancel" type="submit" class="btn btn-ctl-bt waves-effect waves-light m-r-10" value="Cancel">
                                             </div>
                                         </div>
                                     </div>

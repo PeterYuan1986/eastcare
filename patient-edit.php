@@ -306,7 +306,7 @@ if ($birthday) {
                                                     <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
                                                     <span class="input-group-addon">Address Line 2</span>
                                                     <input name="iaddress2" type="text"  class="form-control" placeholder="" <?php
-                                                    if ($address) {
+                                                    if ($address2) {
                                                         print "value='" . $address2 . "'";
                                                     }
                                                         ?>>
