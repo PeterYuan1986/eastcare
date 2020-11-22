@@ -73,9 +73,9 @@ if (isset($_POST["save"])) {
     echo "<br>";
     // var_dump($resultvisitrecord);
     echo "<br>";
-    var_dump($sqldiagnosis);
+    // var_dump($sqldiagnosis);
     echo "<br/>";
-    var_dump($resultdiagnosis);
+    // var_dump($resultdiagnosis);
     if ($result) {
         print '<script>alert("Add Successful!")</script>';
         print '<script> location.replace("visitrecord-list.php"); </script>';
@@ -94,21 +94,28 @@ if (isset($_POST["update"])) {
     $ivisitbill=@$_POST['ivisitbill'];
 
     updatestr();
-    $sql = "UPDATE `patientvisitdoctor` SET `patient_id`='" . $ipatient . "', `doctor_id`='" . $idoctor . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
-    $result = mysqli_query($conn, $sql);
+    $sqlupdatepaientvisitdoctor = "UPDATE `patientvisitdoctor` SET `patient_id`='" . $ipatient . "', `doctor_id`='" . $idoctor . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
+    $resultupdatepaientvisitdoctor = mysqli_query($conn, $sqlupdatepaientvisitdoctor);
+    $sqlupdatevisitrecord = "UPDATE `visitrecord` SET `visit_date`='" . $idate . "', `visit_bill`='" . $ivisitbill . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
+    $resultupdatevisitrecord = mysqli_query($conn, $sqlupdatevisitrecord);    
+    $sqlupdatediagnosis = "UPDATE `diagnosis` SET `disease_id`='" . $idisease . "', `procedure_id`='" . $iprocedure . "',`medicine_id`='" . $imedicine . "' WHERE visitrecord_id='" . $_SESSION['updatevisitrecordid'] . "'";
+    $resultupdatediagnosis = mysqli_query($conn, $sqlupdatediagnosis);
 
 
 
-
-    var_dump($sql)."<br/>";
-    var_dump($result);   
-    // if ($result) {
-    //     print '<script>alert("Edit Successful!")</script>';
-    //     unset($_SESSION['updatevisitrecordid']);
-    //     print '<script> location.replace("visitrecord-list.php"); </script>';
-    // } else {
-    //     print '<script>alert("Edit Failed! Please check and try again!")</script>';
-    // }
+    // var_dump($sqlupdatepaientvisitdoctor)."<br/>";
+    // var_dump($resultupdatepaientvisitdoctor)."<br/>";   
+    //     var_dump($sqlupdatevisitrecord)."<br/>";
+    // var_dump($resultupdatevisitrecord)."<br/>";   
+    //     var_dump($sqlupdatediagnosis)."<br/>";
+    // var_dump($resultupdatediagnosis)."<br/>";   
+    if ($result) {
+        print '<script>alert("Edit Successful!")</script>';
+        unset($_SESSION['updatevisitrecordid']);
+        print '<script> location.replace("visitrecord-list.php"); </script>';
+    } else {
+        print '<script>alert("Edit Failed! Please check and try again!")</script>';
+    }
 }
 
 if (isset($_POST["delete"])) {
@@ -145,17 +152,11 @@ $totalnotes = sizeof($datanote);
 if (isset($_SESSION['editsku'])) {
     $visitrecord_id = $_SESSION['editsku'];
     $_SESSION['updatevisitrecordid'] = $visitrecord_id;
-    $sql = "select visitrecord.visitrecord_id,visit_date,visit_bill,patient.patient_id,doctor.doctor_id, disease_id,procedure_id,medicine_id
-            from visitrecord, patientvisitdoctor, diagnosis, doctor, patient
-            where   visitrecord.visitrecord_id= patientvisitdoctor.visitrecord_id and
-            visitrecord.visitrecord_id = diagnosis.visitrecord_id and
-            patientvisitdoctor.doctor_id=doctor.doctor_id and 
-            patientvisitdoctor.patient_id = patient.patient_id and 
-            visitrecord.visitrecord_id ='" . $visitrecord_id . "'";
+    $sql = "select visitrecord.visitrecord_id,visit_date, visit_bill,patient_id, doctor_id,disease_id,procedure_id, medicine_id from visitrecord left join patientvisitdoctor  on visitrecord.visitrecord_id = patientvisitdoctor.visitrecord_id left join diagnosis on visitrecord.visitrecord_id = diagnosis.visitrecord_id where visitrecord.visitrecord_id ='" . $visitrecord_id . "'";
     $result = mysqli_query($conn, $sql);
-    var_dump($sql);
-    echo "<br/>";
-    var_dump($result);
+    // var_dump($sql);
+    // echo "<br/>";
+    // var_dump($result);
     $row = mysqli_fetch_array($result);
     $visitrecord_id = $row['visitrecord_id'];
     $visit_date = $row['visit_date'];
