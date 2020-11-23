@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 23, 2020 at 12:30 AM
+-- Generation Time: Nov 23, 2020 at 06:07 AM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.11
 
@@ -113,21 +113,22 @@ CREATE TABLE `hospitalizationrecord` (
   `patient_id` varchar(20) NOT NULL,
   `admission_date` date NOT NULL,
   `discharge_date` date DEFAULT NULL,
-  `disease` varchar(20) NOT NULL
+  `timeinterval` int(11) DEFAULT NULL,
+  `disease_id` varchar(20) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `hospitalizationrecord`
 --
 
-INSERT INTO `hospitalizationrecord` (`hospitalization_id`, `room_number`, `bed_number`, `patient_id`, `admission_date`, `discharge_date`, `disease`) VALUES
-(1, 101, NULL, '1', '2020-09-02', NULL, ''),
-(2, 101, NULL, '1', '2020-09-02', '2020-11-21', ''),
-(3, 103, NULL, '2', '2020-07-06', '2020-11-22', ''),
-(4, 101, NULL, '4', '2020-11-03', '2020-11-24', ''),
-(5, 201, NULL, '1', '2020-11-02', NULL, ''),
-(6, 106, NULL, '3', '2020-11-10', NULL, ''),
-(7, 104, NULL, '4', '2020-11-04', NULL, '4');
+INSERT INTO `hospitalizationrecord` (`hospitalization_id`, `room_number`, `bed_number`, `patient_id`, `admission_date`, `discharge_date`, `timeinterval`, `disease_id`) VALUES
+(1, 101, NULL, '1', '2020-09-02', NULL, 82, '2'),
+(2, 101, NULL, '1', '2020-09-02', '2020-11-21', 80, '1'),
+(3, 103, NULL, '2', '2020-07-06', '2020-11-22', 139, '4'),
+(4, 101, NULL, '4', '2020-11-03', '2020-11-24', 21, '2'),
+(5, 201, NULL, '1', '2020-11-02', NULL, 21, '4'),
+(6, 106, NULL, '3', '2020-11-10', NULL, 13, '3'),
+(7, 104, NULL, '4', '2020-11-04', NULL, 19, '4');
 
 -- --------------------------------------------------------
 
@@ -321,7 +322,7 @@ ALTER TABLE `doctor`
 --
 ALTER TABLE `hospitalizationrecord`
   ADD PRIMARY KEY (`hospitalization_id`) USING BTREE,
-  ADD KEY `disease` (`disease`);
+  ADD KEY `disease` (`disease_id`);
 
 --
 -- Indexes for table `medicine`

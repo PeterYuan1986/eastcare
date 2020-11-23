@@ -3,18 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/xampp/htdocs/EastCare/admit-release.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/discharge.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/index.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/patient-detail.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/visitrecord-patient.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/style.css</file>
-            <file>file:/C:/xampp/htdocs/EastCare/register.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/verify.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/timeout.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/roomtype-edit.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/bill.php</file>
-            <file>file:/C:/xampp/htdocs/EastCare/room-edit.php</file>
+            <file>file:/C:/xampp/htdocs/EastCare/disease-report.php</file>
         </group>
     </open-files>
 </project-private>

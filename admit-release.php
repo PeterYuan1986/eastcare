@@ -59,7 +59,7 @@ if (isset($_POST["admit"])) {
     $admission_date = @$_POST['admission'];
     $dise = @$_POST['idisease'];
     $room_number = @$_POST["room"];
-    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id, disease) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "','". $dise . "')";
+    $sql = "INSERT INTO `hospitalizationrecord`(`admission_date` , `room_number`, patient_id, disease_id) VALUES('" . $admission_date . "','" . $room_number . "','" . $patient_id . "','". $dise . "')";
     $result = mysqli_query($conn, $sql);
     $sql = "UPDATE `roomtype` SET `engaged`='Y' WHERE `room_number`='" . $room_number . "'";
     $result = mysqli_query($conn, $sql);
